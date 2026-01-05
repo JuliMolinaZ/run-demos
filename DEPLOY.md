@@ -7,7 +7,7 @@ Esta guía te ayudará a desplegar **Demo Hub** en producción usando Docker de 
 - Docker 20.10+
 - Docker Compose 2.0+
 - Al menos 2GB de RAM disponible
-- Puerto 3000 y 5432 disponibles
+- Puerto 3001 y 5432 disponibles
 
 ## 🔧 Configuración Inicial
 
@@ -85,7 +85,7 @@ docker exec demo-hub-app-prod npm run db:migrate
 docker-compose -f docker-compose.prod.yml ps
 
 # Verificar salud de la aplicación
-curl http://localhost:3000/api/health
+curl http://localhost:3001/api/health
 
 # Verificar base de datos
 docker exec demo-hub-postgres-prod pg_isready -U demo_hub_user
@@ -157,7 +157,7 @@ docker-compose -f docker-compose.prod.yml down -v
 Asegúrate de que solo los puertos necesarios estén expuestos:
 
 ```bash
-# Solo exponer puerto 3000 (aplicación)
+# Solo exponer puerto 3001 (aplicación)
 # No exponer 5432 (PostgreSQL) públicamente
 ```
 
@@ -187,7 +187,7 @@ server {
     ssl_certificate_key /path/to/key.pem;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

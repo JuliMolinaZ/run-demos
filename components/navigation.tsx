@@ -26,8 +26,29 @@ export function Navigation() {
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  React.useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
   // Ocultar navigation en la vista completa del demo
   if (pathname?.startsWith("/demos/") && pathname.includes("/view")) {
+    return null;
+  }
+
+  if (!session) {
     return null;
   }
 
@@ -50,27 +71,6 @@ export function Navigation() {
         return "corporate";
     }
   };
-
-  // Close mobile menu on route change
-  React.useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  // Prevent body scroll when mobile menu is open
-  React.useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileMenuOpen]);
-
-  if (!session) {
-    return null;
-  }
 
   return (
     <>

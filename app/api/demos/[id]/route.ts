@@ -370,7 +370,7 @@ export async function DELETE(
       });
     } catch (webhookError) {
       // Ignorar errores de webhook, no es crítico para la eliminación
-      logger.warn("Error sending demo deleted webhook", webhookError);
+      logger.warn("Error sending demo deleted webhook", webhookError as any);
     }
 
     return NextResponse.json({ 

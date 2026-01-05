@@ -100,7 +100,7 @@ export default function DemoViewPage() {
           credentialsJson = JSON.parse(credentialsJson);
         } catch (e) {
           // Si no se puede parsear, dejarlo como está
-          logger.warn("Could not parse credentialsJson", e);
+          logger.warn("Could not parse credentialsJson", e as any);
         }
       }
       
@@ -395,7 +395,7 @@ export default function DemoViewPage() {
               rightIcon={<ChevronDown className="w-5 h-5" />}
               className="w-full"
             >
-              {t("demoView.viewDemo") || "Ver Demo"}
+              Ver Demo
             </Button>
           </div>
         </div>

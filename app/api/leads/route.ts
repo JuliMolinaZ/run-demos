@@ -202,11 +202,11 @@ export async function POST(req: NextRequest) {
 
     // Obtener información del usuario que compartió si existe
     let sharedByUser = null;
-    if (sharedByUserId) {
+    if (newLead.sharedByUserId) {
       const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id, parseInt(sharedByUserId)))
+        .where(eq(users.id, newLead.sharedByUserId))
         .limit(1);
       sharedByUser = user || null;
     }

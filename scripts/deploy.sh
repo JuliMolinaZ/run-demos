@@ -81,7 +81,7 @@ fi
 max_attempts=30
 attempt=0
 while [ $attempt -lt $max_attempts ]; do
-    if curl -f http://localhost:${APP_PORT:-3000}/api/health > /dev/null 2>&1; then
+    if curl -f http://localhost:${APP_PORT:-3001}/api/health > /dev/null 2>&1; then
         echo -e "${GREEN}✅ Aplicación está funcionando${NC}"
         break
     fi
@@ -101,7 +101,7 @@ echo -e "${YELLOW}📦 Ejecutando migraciones de base de datos...${NC}"
 docker exec demo-hub-app-prod npm run db:migrate || echo -e "${YELLOW}⚠️  Las migraciones pueden necesitar ejecutarse manualmente${NC}"
 
 echo -e "${GREEN}✨ Despliegue completado exitosamente!${NC}"
-echo -e "${GREEN}🌐 Aplicación disponible en: http://localhost:${APP_PORT:-3000}${NC}"
+echo -e "${GREEN}🌐 Aplicación disponible en: http://localhost:${APP_PORT:-3001}${NC}"
 echo ""
 echo -e "${YELLOW}📋 Comandos útiles:${NC}"
 echo -e "   Ver logs: ${GREEN}docker-compose -f docker-compose.prod.yml logs -f${NC}"

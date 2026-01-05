@@ -28,7 +28,7 @@ if (!migrationFile) {
 }
 
 async function runMigration() {
-  const sql = postgres(DATABASE_URL, {
+  const sql = postgres(DATABASE_URL!, {
     max: 1, // Solo una conexión para migraciones
   });
 

@@ -7,9 +7,9 @@ import { Plus, Check } from "lucide-react";
 let useForm: any;
 let zodResolver: any;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line
   const rhf = require("react-hook-form");
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line
   const resolvers = require("@hookform/resolvers/zod");
   useForm = rhf.useForm;
   zodResolver = resolvers.zodResolver;
@@ -66,7 +66,7 @@ export function CreateDemoModal({ onClose, onSuccess }: CreateDemoModalProps) {
     setValue,
     reset,
     trigger,
-  } = useForm<CreateDemoInput & { username?: string; password?: string }>({
+  } = useForm({
     resolver: zodResolver(createDemoSchema),
     defaultValues: {
       productId: 0,

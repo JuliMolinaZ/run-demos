@@ -4,6 +4,7 @@ import { uploadFile, STORAGE_LIMITS } from "@/lib/storage/cloudinary";
 import { db } from "@/lib/db";
 import { storageUsage } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { logger } from "@/lib/utils/logger";
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { signIn, useSession, update } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { LogIn, Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles, Shield, Zap } from "lucide-react";
@@ -94,12 +94,10 @@ function LoginForm() {
       if (result?.error) {
         setError(t("message.error"));
       } else if (result?.ok) {
-        // Forzar actualización de la sesión antes de redirigir
-        await update();
         const callbackUrl = searchParams.get("callbackUrl") || "/";
         // Usar router.push en lugar de window.location.href para evitar recarga completa
-        router.push(callbackUrl);
         // router.refresh() se llama automáticamente con router.push en Next.js 15
+        router.push(callbackUrl);
       } else {
         setError(t("message.error"));
       }

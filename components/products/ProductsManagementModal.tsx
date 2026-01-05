@@ -135,17 +135,13 @@ export function ProductsManagementModal({
             </div>
           ) : products.length === 0 ? (
             <EmptyState
-              icon={<Package className="w-12 h-12" />}
+              icon={Package}
               title="No hay productos"
               description="Comienza creando tu primer producto"
-              action={
-                <Button
-                  variant="primary"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  Crear Producto
-                </Button>
-              }
+              action={{
+                label: "Crear Producto",
+                onClick: () => setShowCreateModal(true),
+              }}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

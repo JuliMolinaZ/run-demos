@@ -10,7 +10,7 @@ export function Toaster() {
   // Importación condicional para evitar errores si sonner no está instalado
   let SonnerToaster: any;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line
     SonnerToaster = require("sonner").Toaster;
   } catch (e) {
     // Fallback: retornar null si sonner no está instalado

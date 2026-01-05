@@ -18,7 +18,10 @@
     "docker:logs": "docker-compose -f docker-compose.prod.yml logs -f",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:dev:down": "docker-compose -f docker-compose.dev.yml down",
-    "deploy": "./scripts/deploy.sh"
+    "deploy": "./scripts/deploy.sh",
+    "deploy:remote": "./scripts/deploy-remote.sh",
+    "clean": "./scripts/pre-deploy-cleanup.sh",
+    "deploy:clean": "./scripts/pre-deploy-cleanup.sh && ./scripts/deploy-remote.sh"
   },
   "dependencies": {
     "@auth/core": "^0.27.0",

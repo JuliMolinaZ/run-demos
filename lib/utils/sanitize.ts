@@ -9,7 +9,7 @@
 let DOMPurify: any = null;
 
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // eslint-disable-next-line
   const dompurifyModule = require("isomorphic-dompurify");
   DOMPurify = dompurifyModule.default || dompurifyModule;
 } catch (error) {
