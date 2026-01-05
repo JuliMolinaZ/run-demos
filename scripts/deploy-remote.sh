@@ -144,13 +144,18 @@ ssh ${SERVER_USER}@${SERVER_HOST} << EOF
     set -e
     cd ${SERVER_APP_DIR}
     
-    # Detener contenedores existentes
-    echo "🛑 Deteniendo contenedores existentes..."
+    # Detener contenedores existentes de demo-hub SOLO
+    echo "🛑 Deteniendo contenedores existentes de demo-hub..."
     docker-compose -f docker-compose.prod.yml down || true
     
-    # Limpiar imágenes y contenedores antiguos (optimización de espacio)
-    echo "🧹 Limpiando imágenes Docker antiguas..."
-    docker system prune -f --volumes || true
+    # Limpiar SOLO recursos de demo-hub (NO otras aplicaciones)
+    echo "🧹 Limpiando recursos antiguos de demo-hub..."
+    # Eliminar solo imágenes de demo-hub
+    docker images | grep "demo-hub" | awk '{print $3}' | xargs -r docker rmi -f || true
+    # Eliminar solo contenedores detenidos de demo-hub
+    docker ps -a | grep "demo-hub" | awk '{print $1}' | xargs -r docker rm -f || true
+    # NO limpiar volúmenes automáticamente (puede afectar otras apps)
+    # Los volúmenes se mantienen para preservar datos de otras aplicaciones
     
     # Construir imágenes (sin cache para asegurar build limpio)
     echo "🔨 Construyendo imágenes optimizadas..."
@@ -195,9 +200,9 @@ ssh ${SERVER_USER}@${SERVER_HOST} << EOF
     echo "📦 Ejecutando migraciones..."
     docker exec demo-hub-app-prod npm run db:migrate || echo "⚠️  Las migraciones pueden necesitar ejecutarse manualmente"
     
-    # Limpiar imágenes no utilizadas para liberar espacio
-    echo "🧹 Limpiando imágenes no utilizadas..."
-    docker image prune -f || true
+    # Limpiar SOLO imágenes huérfanas de demo-hub (NO otras apps)
+    echo "🧹 Limpiando imágenes huérfanas de demo-hub..."
+    docker images --filter "dangling=true" --filter "reference=demo-hub*" -q | xargs -r docker rmi -f || true
     
     echo "✨ Despliegue completado exitosamente!"
 EOF
