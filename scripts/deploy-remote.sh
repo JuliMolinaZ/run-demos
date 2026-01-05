@@ -104,7 +104,7 @@ POSTGRES_DB=demo_hub
 POSTGRES_PORT=5432
 
 # NextAuth.js (Autenticación)
-NEXTAUTH_URL=http://143.110.229.234:3001
+NEXTAUTH_URL=https://demo-hub.runsolutions-services.com
 NEXTAUTH_SECRET=TU_SECRET_KEY_AQUI_GENERA_UNA_CLAVE_SEGURA
 
 # Cloudinary (Almacenamiento de Medios)
