@@ -29,8 +29,8 @@ COPY . .
 # Variables de entorno para build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-# DATABASE_URL dummy para el build (se sobrescribe en runtime)
-ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+# DATABASE_URL para el build - usa el nombre del servicio de Docker
+ENV DATABASE_URL="postgresql://demo_hub_user:demo_hub_password@postgres:5432/demo_hub"
 
 # Build optimizado
 RUN npm run build && \
