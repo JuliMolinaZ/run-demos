@@ -146,7 +146,7 @@ ssh ${SERVER_USER}@${SERVER_HOST} << EOF
     
     # Detener contenedores existentes de demo-hub SOLO
     echo "🛑 Deteniendo contenedores existentes de demo-hub..."
-    docker-compose -f docker-compose.prod.yml down || true
+    docker-compose -f docker-compose.prod.yml --env-file .env.production down || true
     
     # Limpiar SOLO recursos de demo-hub (NO otras aplicaciones)
     echo "🧹 Limpiando recursos antiguos de demo-hub..."
@@ -159,11 +159,11 @@ ssh ${SERVER_USER}@${SERVER_HOST} << EOF
     
     # Construir imágenes (sin cache para asegurar build limpio)
     echo "🔨 Construyendo imágenes optimizadas..."
-    docker-compose -f docker-compose.prod.yml build --no-cache --pull
-    
+    docker-compose -f docker-compose.prod.yml --env-file .env.production build --no-cache --pull
+
     # Iniciar servicios
     echo "🚀 Iniciando servicios..."
-    docker-compose -f docker-compose.prod.yml up -d
+    docker-compose -f docker-compose.prod.yml --env-file .env.production up -d
     
     # Esperar a que los servicios estén listos
     echo "⏳ Esperando a que los servicios estén listos..."
@@ -214,8 +214,8 @@ APP_PORT=$(ssh ${SERVER_USER}@${SERVER_HOST} "grep APP_PORT ${SERVER_APP_DIR}/.e
 echo -e "${GREEN}🌐 Aplicación disponible en: http://${SERVER_HOST}:${APP_PORT:-3001}${NC}"
 echo ""
 echo -e "${YELLOW}📋 Comandos útiles:${NC}"
-echo -e "   Ver logs: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml logs -f'${NC}"
-echo -e "   Detener: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml down'${NC}"
-echo -e "   Reiniciar: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml restart'${NC}"
-echo -e "   Estado: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml ps'${NC}"
+echo -e "   Ver logs: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml --env-file .env.production logs -f'${NC}"
+echo -e "   Detener: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml --env-file .env.production down'${NC}"
+echo -e "   Reiniciar: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml --env-file .env.production restart'${NC}"
+echo -e "   Estado: ${GREEN}ssh ${SERVER_USER}@${SERVER_HOST} 'cd ${SERVER_APP_DIR} && docker-compose -f docker-compose.prod.yml --env-file .env.production ps'${NC}"
 
