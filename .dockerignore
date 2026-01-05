@@ -116,16 +116,16 @@ desktop.ini
 *~
 
 # ============================================
-# TYPESCRIPT - No necesario en runtime
+# TYPESCRIPT - tsconfig.json ES NECESARIO para el build
 # ============================================
 *.tsbuildinfo
-tsconfig.json
-tsconfig.*.json
+# tsconfig.json - NECESARIO para resolver path aliases (@/*)
+# tsconfig.*.json
 
 # ============================================
-# LINTERS Y FORMATTERS
+# LINTERS Y FORMATTERS - .eslintrc.json ES NECESARIO para el build
 # ============================================
-.eslintrc*
+# .eslintrc* - NECESARIO para Next.js build
 .prettierrc*
 .eslintcache
 
