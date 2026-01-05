@@ -14,12 +14,16 @@ jobs:
       
       - name: Check for sensitive files
         run: |
-          if git ls-files | grep -q "\.env$"; then
-            echo "❌ ERROR: Archivos .env detectados"
+          # Verificar archivos .env (sin extensión)
+          if git ls-files | grep -q "^\.env$"; then
+            echo "❌ ERROR: Archivo .env detectado"
             exit 1
           fi
-          if git ls-files | grep -q "\.env\."; then
-            echo "❌ ERROR: Archivos .env.* detectados"
+          # Verificar archivos .env.* pero PERMITIR .env.*.example (plantillas)
+          ENV_FILES=$(git ls-files | grep -E "\.env\." | grep -v "\.example$" | grep -v "\.example\." || true)
+          if [ -n "$ENV_FILES" ]; then
+            echo "❌ ERROR: Archivos .env.* detectados (excepto plantillas .example)"
+            echo "$ENV_FILES"
             exit 1
           fi
           echo "✅ No se encontraron archivos sensibles"

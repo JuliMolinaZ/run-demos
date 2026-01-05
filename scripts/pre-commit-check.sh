@@ -14,16 +14,19 @@ echo "🔍 Verificando que no haya archivos sensibles..."
 
 ERRORS=0
 
-# Verificar archivos .env
-if git ls-files | grep -q "\.env$"; then
-    echo -e "${RED}❌ ERROR: Archivos .env detectados en el staging area${NC}"
+# Verificar archivos .env (sin extensión)
+if git ls-files | grep -q "^\.env$"; then
+    echo -e "${RED}❌ ERROR: Archivo .env detectado en el staging area${NC}"
     echo -e "${YELLOW}   Los archivos .env NUNCA deben subirse al repositorio${NC}"
     ERRORS=$((ERRORS + 1))
 fi
 
-if git ls-files | grep -q "\.env\."; then
-    echo -e "${RED}❌ ERROR: Archivos .env.* detectados en el staging area${NC}"
+# Verificar archivos .env.* pero PERMITIR .env.*.example (plantillas)
+if git ls-files | grep -E "\.env\." | grep -v "\.example$" | grep -v "\.example\." > /dev/null; then
+    echo -e "${RED}❌ ERROR: Archivos .env.* detectados en el staging area (excepto plantillas .example)${NC}"
     echo -e "${YELLOW}   Los archivos .env.* NUNCA deben subirse al repositorio${NC}"
+    echo -e "${YELLOW}   Archivos detectados:${NC}"
+    git ls-files | grep -E "\.env\." | grep -v "\.example$" | grep -v "\.example\." | sed 's/^/     - /'
     ERRORS=$((ERRORS + 1))
 fi
 
