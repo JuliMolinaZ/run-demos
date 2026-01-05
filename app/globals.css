@@ -1,0 +1,590 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Reset for Login Page */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.login-page-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+}
+
+.login-page {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Custom styles for login toggles */
+.login-language-toggle button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem 0.75rem !important;
+  color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.login-language-toggle button:hover {
+  background: transparent !important;
+  transform: scale(1.05);
+}
+
+.light .login-language-toggle button {
+  color: #1a1d24 !important;
+}
+
+.login-theme-toggle button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.login-theme-toggle button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.05);
+}
+
+.light .login-theme-toggle button {
+  color: #1a1d24 !important;
+}
+
+.light .login-theme-toggle button:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Login Toggle Wrapper - Mejor posicionamiento */
+.login-toggle-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: visible;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.login-toggle-wrapper:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Modo claro para login */
+.light .login-toggle-wrapper {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .login-toggle-wrapper:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.light .login-language-toggle button {
+  color: #1a1d24 !important;
+}
+
+.light .login-theme-toggle button {
+  color: #1a1d24 !important;
+}
+
+/* Login Left Side - Gradiente adaptativo */
+.login-left-side {
+  background: linear-gradient(135deg, hsl(212, 90%, 52%) 0%, hsl(212, 88%, 58%) 50%, hsl(212, 85%, 65%) 100%);
+}
+
+.login-gradient-bg {
+  background: linear-gradient(135deg, hsl(212, 90%, 52%) 0%, hsl(212, 88%, 58%) 50%, hsl(212, 85%, 65%) 100%);
+  opacity: 0.9;
+}
+
+.light .login-left-side {
+  background: linear-gradient(135deg, hsl(212, 85%, 65%) 0%, hsl(212, 88%, 58%) 50%, hsl(212, 90%, 52%) 100%);
+}
+
+.light .login-gradient-bg {
+  background: linear-gradient(135deg, hsl(212, 85%, 65%) 0%, hsl(212, 88%, 58%) 50%, hsl(212, 90%, 52%) 100%);
+  opacity: 0.95;
+}
+
+/* Login Right Side - Fondo adaptativo */
+.login-right-side {
+  background: linear-gradient(135deg, hsl(220, 13%, 9%) 0%, hsl(220, 13%, 13%) 50%, hsl(220, 13%, 9%) 100%);
+}
+
+.light .login-right-side {
+  background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 50%, #f8f9fb 100%);
+}
+
+/* Login Card - Adaptativo para modo claro/oscuro */
+.login-card {
+  background: rgba(28, 31, 38, 0.8);
+  border-color: rgba(55, 61, 71, 0.5);
+}
+
+.light .login-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .login-page .text-white {
+  color: #1a1d24 !important;
+}
+
+.light .login-page .text-slate-400 {
+  color: #5a6070 !important;
+}
+
+.light .login-page .text-slate-500 {
+  color: #7f8694 !important;
+}
+
+.light .login-page .border-charcoal-700\/50 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .login-page .bg-charcoal-800\/50 {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.light .login-page input {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1a1d24 !important;
+}
+
+.light .login-page input::placeholder {
+  color: #7f8694 !important;
+}
+
+.light .login-page label {
+  color: #363b45 !important;
+}
+
+.light .login-page .bg-error\/10 {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ============================================
+   CORPORATE PREMIUM DESIGN TOKENS
+   RUN Demo Hub v2.0
+   ============================================ */
+
+:root {
+  /* --- Color Palette --- */
+  /* Base: Monocromático Oscuro Premium */
+  --color-charcoal-950: 220 13% 9%;      /* #14161a - Negro carbón */
+  --color-charcoal-900: 220 13% 13%;     /* #1c1f26 - Carbón profundo */
+  --color-charcoal-800: 220 11% 18%;     /* #262b32 */
+  --color-charcoal-700: 220 10% 25%;     /* #373d47 */
+  --color-charcoal-600: 220 9% 35%;      /* #4d5461 */
+  --color-charcoal-500: 220 8% 46%;      /* #676e7d */
+
+  /* Grises Premium */
+  --color-slate-400: 220 8% 60%;         /* #919bab */
+  --color-slate-300: 220 9% 75%;         /* #b7bec9 */
+  --color-slate-200: 220 15% 85%;        /* #d1d6df */
+  --color-slate-100: 220 20% 94%;        /* #ebeef3 */
+  --color-slate-50: 220 25% 98%;         /* #f8f9fb */
+
+  /* Azul Corporativo RUN (uso estratégico) */
+  --color-corporate-600: 212 90% 52%;    /* #1075e0 - Azul RUN primario */
+  --color-corporate-500: 212 88% 58%;    /* #2d88e8 */
+  --color-corporate-400: 212 85% 65%;    /* #4d9def */
+  --color-corporate-300: 212 80% 75%;    /* #79b4f4 */
+
+  /* Acentos Premium */
+  --color-platinum: 0 0% 85%;            /* #d9d9d9 - Plateado */
+  --color-silver: 0 0% 75%;              /* #bfbfbf */
+  --color-gold: 45 100% 70%;             /* #ffd966 - Dorado para premium */
+
+  /* Semantic Colors */
+  --color-success: 142 76% 36%;          /* #15803d - Verde corporativo */
+  --color-warning: 38 92% 50%;           /* #f59e0b - Ámbar */
+  --color-error: 0 84% 60%;              /* #ef4444 - Rojo */
+  --color-info: 199 89% 48%;             /* #0ea5e9 - Cyan */
+
+  /* --- Typography Scale --- */
+  --font-display: 'Nunito', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Nunito', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Type Scale (Major Third - 1.25) */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.563rem;    /* 25px */
+  --text-3xl: 1.953rem;    /* 31px */
+  --text-4xl: 2.441rem;    /* 39px */
+  --text-5xl: 3.052rem;    /* 49px */
+  --text-6xl: 3.815rem;    /* 61px */
+  --text-7xl: 4.768rem;    /* 76px */
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+
+  /* --- Spacing Scale --- */
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* --- Elevation System (Shadows Premium) --- */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.08), 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -2px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 10px 10px -5px rgb(0 0 0 / 0.08);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.35);
+
+  /* Premium Glow Effects */
+  --glow-corporate: 0 0 20px rgba(16, 117, 224, 0.3);
+  --glow-platinum: 0 0 30px rgba(217, 217, 217, 0.15);
+  --glow-subtle: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* --- Border Radius Scale --- */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-3xl: 2rem;      /* 32px */
+  --radius-full: 9999px;
+
+  /* --- Animation Durations --- */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* --- Easing Functions --- */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* --- Z-Index Scale --- */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+}
+
+/* ============================================
+   LIGHT MODE OVERRIDES
+   ============================================ */
+.light {
+  /* NOTA: Charcoal se mantiene oscuro para elementos como navegación
+     Solo se cambian los fondos de contenido y colores de texto */
+
+  /* Fondos de Contenido: Blancos y grises claros */
+  --color-bg-primary: 0 0% 100%;          /* #ffffff - Blanco puro */
+  --color-bg-secondary: 220 20% 98%;      /* #f8f9fb - Blanco azulado */
+  --color-bg-tertiary: 220 17% 96%;       /* #f3f4f7 - Gris muy claro */
+  --color-bg-elevated: 0 0% 100%;         /* #ffffff - Para cards */
+
+  /* Textos para modo claro: Muy oscuros con buen contraste */
+  --color-text-primary: 220 16% 12%;      /* #1a1d24 - Casi negro */
+  --color-text-secondary: 220 14% 25%;    /* #363b45 - Gris muy oscuro */
+  --color-text-tertiary: 220 12% 40%;     /* #5a6070 - Gris medio-oscuro */
+  --color-text-muted: 220 10% 55%;        /* #7f8694 - Gris medio */
+
+  /* Bordes para modo claro */
+  --color-border-primary: 220 13% 88%;    /* #dde0e5 - Gris claro */
+  --color-border-secondary: 220 15% 92%;  /* #e8eaed - Gris muy claro */
+
+  /* Sombras más visibles para modo claro */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.08), 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.12), 0 4px 6px -2px rgb(0 0 0 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 10px 10px -5px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.3);
+
+  /* Glows más sutiles pero visibles */
+  --glow-corporate: 0 0 20px rgba(16, 117, 224, 0.15);
+  --glow-platinum: 0 0 25px rgba(100, 100, 100, 0.08);
+  --glow-subtle: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+  /* Semantic colors optimizados para fondo claro */
+  --color-success: 142 71% 35%;           /* #0e7c3a - Verde más oscuro */
+  --color-warning: 38 92% 45%;            /* #d68a00 - Ámbar más oscuro */
+  --color-error: 0 84% 55%;               /* #e63946 - Rojo visible */
+  --color-info: 199 89% 42%;              /* #0c89c7 - Cyan más oscuro */
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  border-color: hsl(var(--color-charcoal-700));
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: hsl(var(--color-slate-50));
+  background: hsl(var(--color-charcoal-950));
+  font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+}
+
+/* ============================================
+   UTILITY CLASSES - PREMIUM EFFECTS
+   ============================================ */
+
+@layer utilities {
+  /* Text Balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* --- Glass Effects Corporativos (Adaptables) --- */
+  .glass-premium {
+    background: rgba(23, 25, 30, 0.96);
+    border: 1px solid rgba(71, 85, 105, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .light .glass-premium {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(220, 224, 229, 0.8);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-premium-strong {
+    background: rgba(23, 25, 30, 0.98);
+    border: 1px solid rgba(71, 85, 105, 0.25);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .light .glass-premium-strong {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(220, 224, 229, 0.9);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .glass-light {
+    background: rgba(30, 33, 39, 0.90);
+    border: 1px solid rgba(71, 85, 105, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .light .glass-light {
+    background: rgba(248, 249, 251, 0.90);
+    border: 1px solid rgba(220, 224, 229, 0.6);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Glass hover variants */
+  .hover\:glass-premium:hover {
+    background: rgba(23, 25, 30, 0.96);
+    border-color: rgba(71, 85, 105, 0.2);
+  }
+
+  .light .hover\:glass-premium:hover {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(220, 224, 229, 0.9);
+  }
+
+  /* --- Gradient Backgrounds Premium --- */
+  .bg-gradient-corporate {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-corporate-600)) 0%,
+      hsl(var(--color-corporate-500)) 50%,
+      hsl(var(--color-corporate-400)) 100%
+    );
+  }
+
+  .bg-gradient-charcoal {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-charcoal-900)) 0%,
+      hsl(var(--color-charcoal-800)) 100%
+    );
+  }
+
+  .bg-gradient-platinum {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-platinum)) 0%,
+      hsl(var(--color-silver)) 100%
+    );
+  }
+
+  .bg-gradient-premium {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-charcoal-950)) 0%,
+      hsl(var(--color-charcoal-900)) 25%,
+      hsl(var(--color-charcoal-800)) 75%,
+      hsl(var(--color-charcoal-900)) 100%
+    );
+  }
+
+  /* --- Text Gradients Premium --- */
+  .text-gradient-corporate {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-corporate-400)) 0%,
+      hsl(var(--color-corporate-500)) 50%,
+      hsl(var(--color-corporate-600)) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-platinum {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-slate-50)) 0%,
+      hsl(var(--color-slate-100)) 50%,
+      hsl(var(--color-platinum)) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* --- Glow Effects --- */
+  .glow-corporate {
+    box-shadow: var(--glow-corporate);
+  }
+
+  .glow-platinum {
+    box-shadow: var(--glow-platinum);
+  }
+
+  /* --- Premium Borders --- */
+  .border-gradient-corporate {
+    border: 1px solid transparent;
+    background-image:
+      linear-gradient(hsl(var(--color-charcoal-900)), hsl(var(--color-charcoal-900))),
+      linear-gradient(135deg, hsl(var(--color-corporate-500)), hsl(var(--color-corporate-400)));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .border-gradient-platinum {
+    border: 1px solid transparent;
+    background-image:
+      linear-gradient(hsl(var(--color-charcoal-900)), hsl(var(--color-charcoal-900))),
+      linear-gradient(135deg, hsl(var(--color-platinum)), hsl(var(--color-silver)));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  /* --- Shine Effect (Premium Hover) --- */
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    transition: left var(--duration-slow) var(--ease-out);
+  }
+
+  .shine-effect:hover::before {
+    left: 100%;
+  }
+}
+
+/* ============================================
+   COMPONENT PATTERNS
+   ============================================ */
+
+@layer components {
+  /* Premium Button Base */
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-normal;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-charcoal-950;
+  }
+
+  /* Premium Card Base */
+  .card-base {
+    @apply rounded-2xl transition-all duration-normal;
+  }
+}
+
+/* ============================================
+   UPLOADTHING STYLES
+   ============================================ */
+
+[data-ut-element="button"] {
+  background: linear-gradient(to right, rgb(37, 99, 235), rgb(30, 64, 175)) !important;
+  color: white !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 600 !important;
+  transition: opacity 0.2s !important;
+}
+
+[data-ut-element="button"]:hover {
+  opacity: 0.9 !important;
+}
+
+[data-ut-element="button"]:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}

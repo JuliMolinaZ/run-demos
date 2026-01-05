@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL para desarrollo
+  postgres:
+    image: postgres:16-alpine
+    container_name: demo-hub-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-demo_hub_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-demo_hub_password}
+      POSTGRES_DB: ${POSTGRES_DB:-demo_hub}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-demo_hub_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_dev:
+    driver: local
+

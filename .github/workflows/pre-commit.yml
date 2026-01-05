@@ -1,0 +1,33 @@
+name: Pre-commit Security Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check for sensitive files
+        run: |
+          if git ls-files | grep -q "\.env$"; then
+            echo "❌ ERROR: Archivos .env detectados"
+            exit 1
+          fi
+          if git ls-files | grep -q "\.env\."; then
+            echo "❌ ERROR: Archivos .env.* detectados"
+            exit 1
+          fi
+          echo "✅ No se encontraron archivos sensibles"
+      
+      - name: Check for hardcoded secrets
+        run: |
+          if git diff HEAD | grep -iE "(password|secret|key|token)\s*=\s*['\"][^'\"]+['\"]" | grep -v "example\|placeholder\|TODO\|test" > /dev/null; then
+            echo "⚠️  ADVERTENCIA: Posibles credenciales hardcodeadas detectadas"
+            echo "Por favor revisa el código antes de hacer merge"
+          fi
+
