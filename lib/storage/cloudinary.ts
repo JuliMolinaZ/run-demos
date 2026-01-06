@@ -50,9 +50,8 @@ export async function uploadFile({
       {
         folder,
         resource_type: resourceType,
-        upload_preset: "demo-hub", // Usar upload preset de Cloudinary
-        use_filename: true,
-        unique_filename: false, // Coincidir con configuración del preset
+        // Signed upload (usa API key y secret automáticamente)
+        // No se necesita upload_preset para signed uploads
       },
       (error, result) => {
         if (error) {
