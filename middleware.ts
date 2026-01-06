@@ -3,14 +3,22 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
-  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET ||
     (process.env.NODE_ENV === "development" ? "development-secret-key-minimum-32-characters-long-for-nextauth-v5" : undefined);
-  
-  const token = await getToken({ 
-    req, 
+
+  const token = await getToken({
+    req,
     secret
   });
   const path = req.nextUrl.pathname;
+
+  // Debug logging
+  console.log("[MIDDLEWARE DEBUG]", {
+    path,
+    hasToken: !!token,
+    tokenEmail: token?.email,
+    secret: secret ? "configured" : "missing"
+  });
 
   // Permitir archivos estáticos (imágenes, fuentes, etc.)
   const staticExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.avif', '.woff', '.woff2', '.ttf', '.eot', '.css', '.js', '.map'];
