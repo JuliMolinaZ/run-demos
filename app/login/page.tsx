@@ -51,8 +51,13 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Si ya hay sesión, el middleware redirigirá automáticamente
-  // No hacemos nada aquí para evitar loops infinitos
+  // SOLUCIÓN DEFINITIVA: Si ya hay sesión autenticada, forzar redirección inmediata
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const callbackUrl = searchParams.get("callbackUrl") || "/";
+      router.replace(callbackUrl);
+    }
+  }, [status, session, router, searchParams]);
 
   // Track mouse position for parallax effect
   useEffect(() => {
@@ -73,24 +78,25 @@ function LoginForm() {
     setLoading(true);
 
     try {
+      // SOLUCIÓN DEFINITIVA: Usar signIn con callbackUrl para redirección automática
+      const callbackUrl = searchParams.get("callbackUrl") || "/";
+
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
+        callbackUrl,
       });
 
       if (result?.error) {
         setError(t("message.error"));
+        setLoading(false);
       } else if (result?.ok) {
-        // Después del login exitoso, el middleware redirigirá automáticamente
-        // Solo necesitamos hacer una recarga para que el middleware tome control
-        window.location.href = searchParams.get("callbackUrl") || "/";
-      } else {
-        setError(t("message.error"));
+        // Login exitoso - redirigir inmediatamente usando router.replace
+        router.replace(callbackUrl);
       }
     } catch (err) {
       setError(t("message.error"));
-    } finally {
       setLoading(false);
     }
   };
