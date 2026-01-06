@@ -304,14 +304,14 @@ export default function LeadsPage() {
                 className="hover:border-corporate-500/30 transition-all cursor-pointer overflow-hidden group relative"
                 onClick={() => setSelectedLead(lead)}
               >
-                {/* Delete Button (Admin only) */}
+                {/* Delete Button (Admin only) - Always visible */}
                 {session?.user?.role === "admin" && (
                   <button
                     onClick={(e) => handleDeleteLead(lead.id, e)}
-                    className="absolute top-3 right-3 p-1.5 rounded-md bg-white dark:bg-charcoal-800 border border-gray-200 dark:border-charcoal-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-500/30 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                    className="absolute top-3 right-3 p-1.5 rounded-md bg-white dark:bg-charcoal-800 border border-gray-200 dark:border-charcoal-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-500/30 transition-all z-10 shadow-sm"
                     title={t("leads.delete.title")}
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" />
+                    <Trash2 className="w-3.5 h-3.5 text-gray-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" />
                   </button>
                 )}
 

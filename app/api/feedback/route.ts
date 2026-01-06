@@ -40,12 +40,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Si es buyer, usar su userId
-    const finalUserId = userId || (session.user?.role === "buyer" ? parseInt(session.user.id || "0") : null);
+    // Usar el userId proporcionado o el de la sesión
+    const finalUserId = userId || (session.user?.id ? parseInt(session.user.id) : null);
     let finalLeadId = leadId || null;
 
-    // Si es un buyer (usuario autenticado) y NO tiene leadId, crear un Lead automáticamente
-    if (session.user?.role === "buyer" && !finalLeadId && finalUserId) {
+    // Si el usuario está autenticado y NO tiene leadId, crear un Lead automáticamente
+    // Esto aplica para todos los roles (admin, sales, buyer)
+    if (session.user && !finalLeadId && finalUserId) {
       try {
         // Obtener información del usuario
         const [user] = await db
@@ -81,8 +82,9 @@ export async function POST(req: NextRequest) {
               .returning();
 
             finalLeadId = newLead.id;
-            logger.info("Auto-lead created for buyer", {
+            logger.info("Auto-lead created for user", {
               userId: finalUserId,
+              userRole: session.user.role,
               email: user.email,
               company,
               leadId: newLead.id,
