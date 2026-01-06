@@ -6,6 +6,10 @@ export async function middleware(req: NextRequest) {
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET ||
     (process.env.NODE_ENV === "development" ? "development-secret-key-minimum-32-characters-long-for-nextauth-v5" : undefined);
 
+  // Debug: mostrar TODAS las cookies que llegan
+  const cookies = req.cookies.getAll();
+  console.log("[MIDDLEWARE DEBUG] All cookies:", cookies.map(c => ({ name: c.name, hasValue: !!c.value })));
+
   const token = await getToken({
     req,
     secret
@@ -17,7 +21,8 @@ export async function middleware(req: NextRequest) {
     path,
     hasToken: !!token,
     tokenEmail: token?.email,
-    secret: secret ? "configured" : "missing"
+    secret: secret ? "configured" : "missing",
+    cookieCount: cookies.length
   });
 
   // Permitir archivos estáticos (imágenes, fuentes, etc.)
