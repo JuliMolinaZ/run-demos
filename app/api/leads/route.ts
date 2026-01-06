@@ -95,6 +95,11 @@ export async function GET(req: NextRequest) {
 
     const conditions: any[] = [];
 
+    // Si es vendedor, solo puede ver sus propios leads
+    if (isSales && salesUserId) {
+      conditions.push(eq(leads.sharedByUserId, salesUserId));
+    }
+
     // Búsqueda por texto
     if (search) {
       conditions.push(
