@@ -51,20 +51,27 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Si ya hay sesión, redirigir (pero solo si no está cargando)
+  // Si ya hay sesión, redirigir con recarga completa
   useEffect(() => {
     // Esperar a que la sesión esté completamente cargada
     if (status === "loading") {
       return; // Aún cargando, mostrar formulario
     }
 
-    if (status === "authenticated" && session) {
+    if (status === "authenticated" && session?.user?.role) {
       const callbackUrl = searchParams.get("callbackUrl") || "/";
-      // Usar router.push en lugar de window.location.href para evitar recarga completa
-      router.push(callbackUrl);
-      router.refresh(); // Refrescar datos del servidor
+      // Prevenir loops: si callbackUrl es /login, redirigir a /
+      const redirectUrl = callbackUrl === "/login" || callbackUrl.startsWith("/login")
+        ? "/"
+        : callbackUrl;
+
+      // Usar window.location.href para forzar recarga completa
+      // Esto asegura que la sesión se establezca completamente
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 500);
     }
-  }, [status, session, searchParams, router]);
+  }, [status, session, searchParams]);
 
   // Track mouse position for parallax effect
   useEffect(() => {
@@ -95,9 +102,16 @@ function LoginForm() {
         setError(t("message.error"));
       } else if (result?.ok) {
         const callbackUrl = searchParams.get("callbackUrl") || "/";
-        // Usar router.push en lugar de window.location.href para evitar recarga completa
-        // router.refresh() se llama automáticamente con router.push en Next.js 15
-        router.push(callbackUrl);
+        // Prevenir loops: si callbackUrl es /login, redirigir a /
+        const redirectUrl = callbackUrl === "/login" || callbackUrl.startsWith("/login")
+          ? "/"
+          : callbackUrl;
+
+        // Usar window.location.href para forzar recarga completa
+        // Esto asegura que la sesión se establezca completamente en el navegador
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 500);
       } else {
         setError(t("message.error"));
       }

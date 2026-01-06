@@ -62,27 +62,29 @@ const config: NextAuthConfig = {
     async jwt({ token, user, trigger, session }: any) {
       // Si es un login inicial, cargar datos del usuario
       if (user) {
-        token.role = user.role;
         token.id = user.id as string;
+        token.email = user.email;
+        token.name = user.name;
+        token.role = user.role;
         token.profilePicture = (user as any).profilePicture;
         token.company = (user as any).company;
-        token.name = user.name;
       }
-      
+
       // Si se actualiza la sesión (desde update()), usar los nuevos datos
       if (trigger === "update" && session) {
         if (session.name !== undefined) token.name = session.name;
         if (session.profilePicture !== undefined) token.profilePicture = session.profilePicture;
         if (session.company !== undefined) token.company = session.company;
       }
-      
+
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role as "admin" | "sales" | "buyer";
+      if (session.user && token) {
         session.user.id = token.id as string;
+        session.user.email = token.email as string;
         session.user.name = token.name as string;
+        session.user.role = token.role as "admin" | "sales" | "buyer";
         (session.user as any).profilePicture = token.profilePicture;
         (session.user as any).company = token.company;
       }
