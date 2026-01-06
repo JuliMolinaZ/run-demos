@@ -48,6 +48,11 @@ export function Navigation() {
     return null;
   }
 
+  // CRÍTICO: NUNCA mostrar navigation en página de login
+  if (pathname === "/login") {
+    return null;
+  }
+
   if (!session) {
     return null;
   }
