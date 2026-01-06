@@ -15,46 +15,64 @@ const config: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("[AUTH DEBUG] Starting authorize with credentials:", { email: credentials?.email });
+
         if (!credentials?.email || !credentials?.password) {
+          console.log("[AUTH DEBUG] Missing credentials");
           return null;
         }
 
-        // Seleccionar todas las columnas necesarias
-        const user = await db
-          .select({
-            id: users.id,
-            email: users.email,
-            name: users.name,
-            password: users.password,
-            role: users.role,
-            profilePicture: users.profilePicture,
-            company: users.company,
-          })
-          .from(users)
-          .where(eq(users.email, credentials.email as string))
-          .limit(1);
+        try {
+          console.log("[AUTH DEBUG] Querying database for user:", credentials.email);
 
-        if (user.length === 0) {
+          // Seleccionar todas las columnas necesarias
+          const user = await db
+            .select({
+              id: users.id,
+              email: users.email,
+              name: users.name,
+              password: users.password,
+              role: users.role,
+              profilePicture: users.profilePicture,
+              company: users.company,
+            })
+            .from(users)
+            .where(eq(users.email, credentials.email as string))
+            .limit(1);
+
+          console.log("[AUTH DEBUG] User query result:", { found: user.length > 0, email: user[0]?.email });
+
+          if (user.length === 0) {
+            console.log("[AUTH DEBUG] User not found");
+            return null;
+          }
+
+          console.log("[AUTH DEBUG] Comparing passwords...");
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            user[0].password
+          );
+
+          console.log("[AUTH DEBUG] Password valid:", isValidPassword);
+
+          if (!isValidPassword) {
+            console.log("[AUTH DEBUG] Invalid password");
+            return null;
+          }
+
+          console.log("[AUTH DEBUG] Authentication successful for:", user[0].email);
+          return {
+            id: user[0].id.toString(),
+            email: user[0].email,
+            name: user[0].name,
+            role: user[0].role,
+            profilePicture: user[0].profilePicture || null,
+            company: user[0].company || null,
+          };
+        } catch (error) {
+          console.error("[AUTH DEBUG] Error in authorize:", error);
           return null;
         }
-
-        const isValidPassword = await bcrypt.compare(
-          credentials.password as string,
-          user[0].password
-        );
-
-        if (!isValidPassword) {
-          return null;
-        }
-
-        return {
-          id: user[0].id.toString(),
-          email: user[0].email,
-          name: user[0].name,
-          role: user[0].role,
-          profilePicture: user[0].profilePicture || null,
-          company: user[0].company || null,
-        };
       },
     }),
   ],
@@ -109,7 +127,7 @@ const config: NextAuthConfig = {
     return secret;
   })(),
   trustHost: true,
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Temporalmente habilitado para diagnóstico
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
