@@ -386,7 +386,7 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                         setShowAddDocument(false);
                       }}
                       className="p-1.5 hover:bg-gray-100 dark:hover:bg-charcoal-800 rounded transition-colors text-gray-600 dark:text-slate-400 hover:text-corporate-600 dark:hover:text-corporate-400"
-                      title={t("demoView.addVideo")}
+                      title="Agregar Video"
                     >
                       <VideoIcon className="w-4 h-4" />
                     </button>
