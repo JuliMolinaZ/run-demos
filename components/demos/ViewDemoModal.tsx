@@ -29,6 +29,7 @@ import { Card } from "@/components/ui/card";
 import { CldImageWrapper } from "@/components/ui/CldImageWrapper";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { VideoUpload } from "@/components/ui/VideoUpload";
+import { DocumentUpload } from "@/components/ui/DocumentUpload";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { logger } from "@/lib/utils/logger-client";
@@ -56,7 +57,7 @@ interface Demo {
 
 interface MediaItem {
   id: number;
-  type: "image" | "video";
+  type: "image" | "video" | "pdf" | "document";
   url: string;
   title?: string;
   description?: string;
@@ -78,6 +79,7 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
   const [loadingMedia, setLoadingMedia] = useState(true);
   const [showAddImage, setShowAddImage] = useState(false);
   const [showAddVideo, setShowAddVideo] = useState(false);
+  const [showAddDocument, setShowAddDocument] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [lightboxMedia, setLightboxMedia] = useState<MediaItem | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -173,6 +175,31 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
       }
     } catch (error) {
       logger.error("Error adding video", error);
+    }
+  };
+
+  const handleAddDocument = async (url: string | null) => {
+    if (!url) {
+      setShowAddDocument(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/demos/${demo.id}/media`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "pdf", url }),
+      });
+
+      if (res.ok) {
+        setShowAddDocument(false);
+        fetchMedia();
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al agregar documento");
+      }
+    } catch (error) {
+      logger.error("Error adding document", error);
     }
   };
 
@@ -345,11 +372,34 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                       onClick={() => {
                         setShowAddImage(true);
                         setShowAddVideo(false);
+                        setShowAddDocument(false);
                       }}
-                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-charcoal-800 rounded transition-colors text-gray-600 dark:text-slate-400"
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-charcoal-800 rounded transition-colors text-gray-600 dark:text-slate-400 hover:text-corporate-600 dark:hover:text-corporate-400"
                       title={t("demoView.addImage")}
                     >
-                      <Plus className="w-4 h-4" />
+                      <ImageIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddVideo(true);
+                        setShowAddImage(false);
+                        setShowAddDocument(false);
+                      }}
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-charcoal-800 rounded transition-colors text-gray-600 dark:text-slate-400 hover:text-corporate-600 dark:hover:text-corporate-400"
+                      title={t("demoView.addVideo")}
+                    >
+                      <VideoIcon className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddDocument(true);
+                        setShowAddImage(false);
+                        setShowAddVideo(false);
+                      }}
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-charcoal-800 rounded transition-colors text-gray-600 dark:text-slate-400 hover:text-corporate-600 dark:hover:text-corporate-400"
+                      title="Agregar PDF/Documento"
+                    >
+                      <FileText className="w-4 h-4" />
                     </button>
                   </div>
                 )}
@@ -387,6 +437,24 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                 </div>
               )}
 
+              {showAddDocument && (
+                <div className="mb-4 p-3 bg-gray-100 dark:bg-charcoal-800 rounded-lg">
+                  <DocumentUpload
+                    value=""
+                    onChange={handleAddDocument}
+                    label="Subir PDF o Documento"
+                    accept=".pdf,.doc,.docx"
+                    maxSizeMB={10}
+                  />
+                  <button
+                    onClick={() => setShowAddDocument(false)}
+                    className="mt-2 w-full px-3 py-2 text-sm bg-white dark:bg-charcoal-900 rounded-lg hover:bg-gray-50 dark:hover:bg-charcoal-800 transition-colors text-gray-700 dark:text-slate-300"
+                  >
+                    {t("common.cancel")}
+                  </button>
+                </div>
+              )}
+
               {loadingMedia ? (
                 <p className="text-sm text-gray-600 dark:text-slate-400 text-center py-4">
                   {t("common.loading")}
@@ -415,11 +483,27 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                             <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
                         </div>
-                      ) : (
+                      ) : item.type === "video" ? (
                         <div className="relative w-full h-32 bg-charcoal-950 flex items-center justify-center">
                           <VideoIcon className="w-12 h-12 text-slate-400" />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                             <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative w-full h-24 bg-gradient-corporate/10 flex items-center justify-center p-3">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-corporate flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-900 dark:text-slate-100 truncate">
+                                {item.title || "Documento PDF"}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-slate-500">
+                                Click para ver
+                              </p>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -607,7 +691,7 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                     className="object-contain max-h-[85vh] rounded-lg shadow-2xl"
                   />
                 </div>
-              ) : (
+              ) : lightboxMedia.type === "video" ? (
                 <div className="relative w-full rounded-lg overflow-hidden shadow-2xl bg-black">
                   <video
                     src={lightboxMedia.url}
@@ -615,6 +699,26 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
                     autoPlay
                     className="w-full max-h-[85vh]"
                   />
+                </div>
+              ) : (
+                <div className="relative w-full rounded-lg overflow-hidden shadow-2xl bg-white dark:bg-charcoal-900">
+                  <iframe
+                    src={lightboxMedia.url}
+                    className="w-full h-[85vh]"
+                    title={lightboxMedia.title || "Documento PDF"}
+                  />
+                  <div className="absolute top-4 left-4">
+                    <a
+                      href={lightboxMedia.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-corporate-500 hover:bg-corporate-600 text-white rounded-lg shadow-lg transition-colors flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Abrir en nueva pestaña
+                    </a>
+                  </div>
                 </div>
               )}
 
