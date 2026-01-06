@@ -61,9 +61,11 @@ export async function POST(
       );
     }
 
-    if (type !== "image" && type !== "video") {
+    // Validar que el tipo sea válido
+    const validTypes = ["image", "video", "pdf", "document"];
+    if (!validTypes.includes(type)) {
       return NextResponse.json(
-        { error: "Tipo debe ser 'image' o 'video'" },
+        { error: `Tipo debe ser uno de: ${validTypes.join(", ")}` },
         { status: 400 }
       );
     }
@@ -72,7 +74,7 @@ export async function POST(
       .insert(demoMedia)
       .values({
         demoId,
-        type: type as "image" | "video",
+        type,
         url,
         title: title || null,
         description: description || null,

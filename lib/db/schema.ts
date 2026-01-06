@@ -95,7 +95,7 @@ export const demoAssignments = pgTable("demo_assignments", {
 export const demoMedia = pgTable("demo_media", {
   id: serial("id").primaryKey(),
   demoId: integer("demo_id").references(() => demos.id).notNull(),
-  type: varchar("type", { length: 20 }).notNull(), // 'image' or 'video'
+  type: varchar("type", { length: 20 }).notNull(), // 'image', 'video', 'pdf', or 'document'
   url: text("url").notNull(),
   title: varchar("title", { length: 255 }),
   description: text("description"),

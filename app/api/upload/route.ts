@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { storageUsage } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/utils/logger";
+import { getResourceTypeFromFileName, isSupportedFileType } from "@/lib/utils/file-helpers";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,14 +18,28 @@ export async function POST(req: NextRequest) {
     const userId = parseInt(session.user?.id || "0");
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    const type = formData.get("type") as string; // 'image' or 'video'
+    const type = formData.get("type") as string; // 'image', 'video', or 'document'
 
     if (!file) {
       return NextResponse.json({ error: "No se proporcionó archivo" }, { status: 400 });
     }
 
+    // Validar que el tipo de archivo sea soportado
+    if (!isSupportedFileType(file.name)) {
+      return NextResponse.json(
+        { error: "Tipo de archivo no soportado" },
+        { status: 400 }
+      );
+    }
+
     // Verificar límite de tamaño de archivo
-    const maxSize = type === "video" ? STORAGE_LIMITS.MAX_FILE_SIZE_VIDEO : STORAGE_LIMITS.MAX_FILE_SIZE_IMAGE;
+    let maxSize = STORAGE_LIMITS.MAX_FILE_SIZE_IMAGE; // 10MB por defecto
+    if (type === "video") {
+      maxSize = STORAGE_LIMITS.MAX_FILE_SIZE_VIDEO; // 100MB
+    } else if (type === "document") {
+      maxSize = 10 * 1024 * 1024; // 10MB para documentos
+    }
+
     if (file.size > maxSize) {
       const maxSizeMB = Math.round(maxSize / (1024 * 1024));
       return NextResponse.json(
@@ -55,13 +70,22 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Subir archivo
-    const folder = type === "video" ? "demo-hub/videos" : "demo-hub/images";
+    // Determinar folder y resourceType basado en el tipo de archivo
+    let folder = "demo-hub/images";
+    if (type === "video") {
+      folder = "demo-hub/videos";
+    } else if (type === "document") {
+      folder = "demo-hub/documents";
+    }
+
+    // Usar helper para determinar el resourceType correcto de Cloudinary
+    const resourceType = getResourceTypeFromFileName(file.name);
+
     const result = await uploadFile({
       file: buffer,
       fileName: file.name,
       folder,
-      resourceType: type === "video" ? "video" : "image",
+      resourceType,
     });
 
     // Actualizar uso de almacenamiento

@@ -4,7 +4,7 @@ export interface UploadFileParams {
   file: Buffer | Uint8Array;
   fileName: string;
   folder?: string;
-  resourceType?: "image" | "video" | "auto";
+  resourceType?: "image" | "video" | "auto" | "raw";
 }
 
 export interface UploadResult {
@@ -38,15 +38,42 @@ export async function uploadFile({
 
   // Usar REST API directamente con fetch en lugar del SDK
   try {
+    // Detectar MIME type basado en el fileName
+    const getMimeType = (fileName: string): string => {
+      const ext = fileName.toLowerCase().split('.').pop();
+      const mimeTypes: Record<string, string> = {
+        'pdf': 'application/pdf',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+      };
+      return mimeTypes[ext || ''] || 'application/octet-stream';
+    };
+
+    const mimeType = getMimeType(fileName);
+
     // Convertir Buffer a base64 data URI
-    const base64 = `data:${resourceType === 'video' ? 'video/mp4' : 'image/png'};base64,${file.toString('base64')}`;
+    const base64 = `data:${mimeType};base64,${file.toString('base64')}`;
 
     // Generar timestamp y signature para signed upload
     const timestamp = Math.round(Date.now() / 1000);
     const crypto = await import('crypto');
 
+    // Para PDFs y documentos, necesitamos agregar type=upload para acceso público
+    const uploadType = resourceType === 'raw' ? 'upload' : undefined;
+
     // Parámetros para el signature (deben estar en orden alfabético)
-    const paramsToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    let paramsToSign = `folder=${folder}&timestamp=${timestamp}`;
+    if (uploadType) {
+      paramsToSign = `folder=${folder}&timestamp=${timestamp}&type=${uploadType}`;
+    }
+    paramsToSign += apiSecret;
+
     const signature = crypto.createHash('sha1').update(paramsToSign).digest('hex');
 
     // Crear FormData
@@ -56,6 +83,11 @@ export async function uploadFile({
     formData.append('timestamp', timestamp.toString());
     formData.append('signature', signature);
     formData.append('folder', folder);
+
+    // Para raw uploads (PDFs), agregar type=upload para acceso público
+    if (uploadType) {
+      formData.append('type', uploadType);
+    }
 
     console.log('[CLOUDINARY DEBUG] Uploading with params:', {
       cloudName,
