@@ -46,16 +46,13 @@ export async function uploadFile({
   }
 
   return new Promise((resolve, reject) => {
-    // Generar timestamp para signed upload
-    const timestamp = Math.round(new Date().getTime() / 1000);
-
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
         resource_type: resourceType,
+        upload_preset: "demo-hub", // Usar upload preset de Cloudinary
         use_filename: true,
-        unique_filename: true,
-        timestamp, // Agregar timestamp para signed upload
+        unique_filename: false, // Coincidir con configuración del preset
       },
       (error, result) => {
         if (error) {
