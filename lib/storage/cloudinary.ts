@@ -46,16 +46,26 @@ export async function uploadFile({
   }
 
   return new Promise((resolve, reject) => {
+    // Generar timestamp para signed upload
+    const timestamp = Math.round(new Date().getTime() / 1000);
+
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
         resource_type: resourceType,
         use_filename: true,
         unique_filename: true,
+        timestamp, // Agregar timestamp para signed upload
       },
       (error, result) => {
         if (error) {
-          reject(error);
+          // Log detallado del error para debugging
+          console.error('[CLOUDINARY ERROR]', {
+            message: error.message,
+            http_code: error.http_code,
+            error: error.error,
+          });
+          reject(new Error(`Error al subir archivo a Cloudinary: ${error.message || JSON.stringify(error)}`));
           return;
         }
 
