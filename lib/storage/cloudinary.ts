@@ -1,14 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 
-// Configurar Cloudinary
-if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-}
-
 export interface UploadFileParams {
   file: Buffer | Uint8Array;
   fileName: string;
@@ -44,6 +35,14 @@ export async function uploadFile({
       `Ver CLOUDINARY_SETUP.md para más información.`
     );
   }
+
+  // Configurar Cloudinary dentro de la función para asegurar que las variables estén disponibles
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+  });
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
