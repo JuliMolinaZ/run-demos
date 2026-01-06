@@ -74,17 +74,34 @@ function LoginForm() {
     try {
       const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-      // USAR REDIRECT TRUE - dejar que NextAuth maneje TODO
-      await signIn("credentials", {
+      console.log("[LOGIN DEBUG] Attempting sign in...");
+
+      // USAR REDIRECT FALSE para manejar el resultado
+      const result = await signIn("credentials", {
         email,
         password,
-        redirect: true,
+        redirect: false,
         callbackUrl,
       });
 
-      // Si llegamos aquí, hubo un error (redirect: true no retorna si es exitoso)
+      console.log("[LOGIN DEBUG] Sign in result:", result);
+
+      if (result?.error) {
+        console.log("[LOGIN DEBUG] Sign in error:", result.error);
+        setError(t("message.error"));
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        console.log("[LOGIN DEBUG] Sign in successful, redirecting to:", callbackUrl);
+        // Esperar un momento para que las cookies se establezcan
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // Redirect manual con recarga completa
+        window.location.href = callbackUrl;
+      }
     } catch (err: any) {
-      console.log("[LOGIN DEBUG] Error:", err);
+      console.error("[LOGIN DEBUG] Exception:", err);
       setError(t("message.error"));
       setLoading(false);
     }
