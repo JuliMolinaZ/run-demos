@@ -53,11 +53,16 @@ function LoginForm() {
 
   // SOLUCIÓN DEFINITIVA: Si ya hay sesión autenticada, forzar redirección inmediata
   useEffect(() => {
+    console.log("[LOGIN DEBUG] status:", status, "session:", !!session);
+
     if (status === "authenticated" && session?.user) {
       const callbackUrl = searchParams.get("callbackUrl") || "/";
-      router.replace(callbackUrl);
+      console.log("[LOGIN DEBUG] Redirecting to:", callbackUrl);
+
+      // Usar window.location.href para garantizar redirección
+      window.location.href = callbackUrl;
     }
-  }, [status, session, router, searchParams]);
+  }, [status, session, searchParams]);
 
   // Track mouse position for parallax effect
   useEffect(() => {
@@ -89,17 +94,31 @@ function LoginForm() {
       });
 
       if (result?.error) {
+        console.log("[LOGIN DEBUG] Error en login:", result.error);
         setError(t("message.error"));
         setLoading(false);
       } else if (result?.ok) {
-        // Login exitoso - redirigir inmediatamente usando router.replace
-        router.replace(callbackUrl);
+        console.log("[LOGIN DEBUG] Login exitoso, redirigiendo a:", callbackUrl);
+        // Login exitoso - usar window.location para forzar navegación
+        window.location.href = callbackUrl;
       }
     } catch (err) {
       setError(t("message.error"));
       setLoading(false);
     }
   };
+
+  // Si ya hay sesión, NO mostrar login - solo spinner
+  if (status === "authenticated" && session?.user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-charcoal-950">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-corporate-500 mb-4"></div>
+          <p className="text-slate-400">Redirigiendo al dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-page h-screen w-screen relative flex overflow-hidden bg-charcoal-950 m-0 p-0">
