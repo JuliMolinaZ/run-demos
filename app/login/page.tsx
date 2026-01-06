@@ -51,27 +51,8 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Si ya hay sesión, redirigir con recarga completa
-  useEffect(() => {
-    // Esperar a que la sesión esté completamente cargada
-    if (status === "loading") {
-      return; // Aún cargando, mostrar formulario
-    }
-
-    if (status === "authenticated" && session?.user?.role) {
-      const callbackUrl = searchParams.get("callbackUrl") || "/";
-      // Prevenir loops: si callbackUrl es /login, redirigir a /
-      const redirectUrl = callbackUrl === "/login" || callbackUrl.startsWith("/login")
-        ? "/"
-        : callbackUrl;
-
-      // Usar window.location.href para forzar recarga completa
-      // Esto asegura que la sesión se establezca completamente
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 500);
-    }
-  }, [status, session, searchParams]);
+  // Si ya hay sesión, el middleware redirigirá automáticamente
+  // No hacemos nada aquí para evitar loops infinitos
 
   // Track mouse position for parallax effect
   useEffect(() => {
@@ -101,17 +82,9 @@ function LoginForm() {
       if (result?.error) {
         setError(t("message.error"));
       } else if (result?.ok) {
-        const callbackUrl = searchParams.get("callbackUrl") || "/";
-        // Prevenir loops: si callbackUrl es /login, redirigir a /
-        const redirectUrl = callbackUrl === "/login" || callbackUrl.startsWith("/login")
-          ? "/"
-          : callbackUrl;
-
-        // Usar window.location.href para forzar recarga completa
-        // Esto asegura que la sesión se establezca completamente en el navegador
-        setTimeout(() => {
-          window.location.href = redirectUrl;
-        }, 500);
+        // Después del login exitoso, el middleware redirigirá automáticamente
+        // Solo necesitamos hacer una recarga para que el middleware tome control
+        window.location.href = searchParams.get("callbackUrl") || "/";
       } else {
         setError(t("message.error"));
       }
