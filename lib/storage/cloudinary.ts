@@ -36,49 +36,65 @@ export async function uploadFile({
     );
   }
 
-  // Configurar Cloudinary dentro de la función para asegurar que las variables estén disponibles
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-    secure: true,
-  });
+  // Usar REST API directamente con fetch en lugar del SDK
+  try {
+    // Convertir Buffer a base64 data URI
+    const base64 = `data:${resourceType === 'video' ? 'video/mp4' : 'image/png'};base64,${file.toString('base64')}`;
 
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
+    // Generar timestamp y signature para signed upload
+    const timestamp = Math.round(Date.now() / 1000);
+    const crypto = await import('crypto');
+
+    // Parámetros para el signature (deben estar en orden alfabético)
+    const paramsToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    const signature = crypto.createHash('sha1').update(paramsToSign).digest('hex');
+
+    // Crear FormData
+    const formData = new FormData();
+    formData.append('file', base64);
+    formData.append('api_key', apiKey);
+    formData.append('timestamp', timestamp.toString());
+    formData.append('signature', signature);
+    formData.append('folder', folder);
+
+    console.log('[CLOUDINARY DEBUG] Uploading with params:', {
+      cloudName,
+      folder,
+      resourceType,
+      timestamp,
+    });
+
+    // Upload a Cloudinary usando REST API
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
       {
-        folder,
-        resource_type: resourceType,
-        // Signed upload (usa API key y secret automáticamente)
-        // No se necesita upload_preset para signed uploads
-      },
-      (error, result) => {
-        if (error) {
-          // Log detallado del error para debugging
-          console.error('[CLOUDINARY ERROR]', {
-            message: error.message,
-            http_code: error.http_code,
-            error: error.error,
-          });
-          reject(new Error(`Error al subir archivo a Cloudinary: ${error.message || JSON.stringify(error)}`));
-          return;
-        }
-
-        if (!result) {
-          reject(new Error("No se recibió resultado de Cloudinary"));
-          return;
-        }
-
-        resolve({
-          url: result.secure_url,
-          publicId: result.public_id,
-          size: result.bytes,
-        });
+        method: 'POST',
+        body: formData,
       }
     );
 
-    uploadStream.end(file);
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[CLOUDINARY ERROR]', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText.substring(0, 500),
+      });
+      throw new Error(`Cloudinary upload failed: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('[CLOUDINARY SUCCESS]', { publicId: result.public_id, url: result.secure_url });
+
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+      size: result.bytes,
+    };
+  } catch (error: any) {
+    console.error('[CLOUDINARY ERROR]', error);
+    throw new Error(`Error al subir archivo a Cloudinary: ${error.message}`);
+  }
 }
 
 /**
