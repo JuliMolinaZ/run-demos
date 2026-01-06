@@ -51,18 +51,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // SOLUCIÓN DEFINITIVA: Si ya hay sesión autenticada, forzar redirección inmediata
-  useEffect(() => {
-    console.log("[LOGIN DEBUG] status:", status, "session:", !!session);
-
-    if (status === "authenticated" && session?.user) {
-      const callbackUrl = searchParams.get("callbackUrl") || "/";
-      console.log("[LOGIN DEBUG] Redirecting to:", callbackUrl);
-
-      // Usar window.location.href para garantizar redirección
-      window.location.href = callbackUrl;
-    }
-  }, [status, session, searchParams]);
+  // El middleware redirigirá automáticamente si hay sesión
 
   // Track mouse position for parallax effect
   useEffect(() => {
@@ -83,42 +72,23 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // SOLUCIÓN DEFINITIVA: Usar signIn con callbackUrl para redirección automática
       const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-      const result = await signIn("credentials", {
+      // USAR REDIRECT TRUE - dejar que NextAuth maneje TODO
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        redirect: true,
         callbackUrl,
       });
 
-      if (result?.error) {
-        console.log("[LOGIN DEBUG] Error en login:", result.error);
-        setError(t("message.error"));
-        setLoading(false);
-      } else if (result?.ok) {
-        console.log("[LOGIN DEBUG] Login exitoso, redirigiendo a:", callbackUrl);
-        // Login exitoso - usar window.location para forzar navegación
-        window.location.href = callbackUrl;
-      }
-    } catch (err) {
+      // Si llegamos aquí, hubo un error (redirect: true no retorna si es exitoso)
+    } catch (err: any) {
+      console.log("[LOGIN DEBUG] Error:", err);
       setError(t("message.error"));
       setLoading(false);
     }
   };
-
-  // Si ya hay sesión, NO mostrar login - solo spinner
-  if (status === "authenticated" && session?.user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal-950">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-corporate-500 mb-4"></div>
-          <p className="text-slate-400">Redirigiendo al dashboard...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="login-page h-screen w-screen relative flex overflow-hidden bg-charcoal-950 m-0 p-0">
