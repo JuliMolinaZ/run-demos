@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { wrapHTMLContent } from "@/lib/utils/html-wrapper";
 
 interface Demo {
   id: number;
@@ -347,7 +348,7 @@ export default function PublicDemoPage() {
       <div className="min-h-screen bg-charcoal-950">
         <iframe
           src={demo.htmlContent ? undefined : demo.url}
-          srcDoc={demo.htmlContent || undefined}
+          srcDoc={demo.htmlContent ? wrapHTMLContent(demo.htmlContent) : undefined}
           className="w-full h-screen border-0"
           title={demo.title}
           sandbox={demo.htmlContent ? "allow-scripts allow-same-origin allow-forms allow-popups allow-modals" : undefined}

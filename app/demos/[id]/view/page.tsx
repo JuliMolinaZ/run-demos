@@ -27,6 +27,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CldImageWrapper } from "@/components/ui/CldImageWrapper";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { wrapHTMLContent } from "@/lib/utils/html-wrapper";
 
 interface Demo {
   id: number;
@@ -494,7 +495,7 @@ export default function DemoViewPage() {
           >
             {demo.htmlContent ? (
               <iframe
-                srcDoc={demo.htmlContent}
+                srcDoc={wrapHTMLContent(demo.htmlContent)}
                 className="w-full h-full border-0"
                 title={demo.title}
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
