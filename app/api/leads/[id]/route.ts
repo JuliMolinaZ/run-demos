@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { leads } from "@/lib/db/schema";
+import { leads, feedback } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/utils/logger";
 
@@ -34,7 +34,10 @@ export async function DELETE(
       );
     }
 
-    // Eliminar el lead
+    // Primero eliminar todos los feedbacks asociados al lead
+    await db.delete(feedback).where(eq(feedback.leadId, leadId));
+
+    // Luego eliminar el lead
     await db.delete(leads).where(eq(leads.id, leadId));
 
     return NextResponse.json(
