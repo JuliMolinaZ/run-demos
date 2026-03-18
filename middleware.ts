@@ -6,10 +6,6 @@ export async function middleware(req: NextRequest) {
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET ||
     (process.env.NODE_ENV === "development" ? "development-secret-key-minimum-32-characters-long-for-nextauth-v5" : undefined);
 
-  // Debug: mostrar TODAS las cookies que llegan
-  const cookies = req.cookies.getAll();
-  console.log("[MIDDLEWARE DEBUG] All cookies:", cookies.map(c => ({ name: c.name, hasValue: !!c.value })));
-
   const token = await getToken({
     req,
     secret,
@@ -18,15 +14,6 @@ export async function middleware(req: NextRequest) {
       : "authjs.session-token"
   });
   const path = req.nextUrl.pathname;
-
-  // Debug logging
-  console.log("[MIDDLEWARE DEBUG]", {
-    path,
-    hasToken: !!token,
-    tokenEmail: token?.email,
-    secret: secret ? "configured" : "missing",
-    cookieCount: cookies.length
-  });
 
   // Permitir archivos estáticos (imágenes, fuentes, etc.)
   const staticExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.avif', '.woff', '.woff2', '.ttf', '.eot', '.css', '.js', '.map'];
@@ -42,8 +29,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Permitir acceso público a demos compartidos
-  if (path.startsWith("/demo/") && path.includes("/public")) {
+  // Permitir acceso público a demos compartidos (ruta unificada bajo /demos)
+  if (path.startsWith("/demos/") && path.includes("/public")) {
     return NextResponse.next();
   }
 

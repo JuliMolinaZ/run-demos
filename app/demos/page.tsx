@@ -382,11 +382,7 @@ export default function DemosPage() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      // Todos los usuarios (incluidos buyers) usan el modal
-                      setSelectedDemo(demo);
-                      setShowViewModal(true);
-                    }}
+                    onClick={() => router.push(`/demos/${demo.id}/view`)}
                     leftIcon={<Play className="w-4 h-4" />}
                     className="flex-1"
                     aria-label={`Ver demo: ${demo.title}`}

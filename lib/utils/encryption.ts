@@ -126,10 +126,8 @@ export function decryptCredentials(
       username?: string | null;
       password?: string | null;
     };
-  } catch (error) {
-    logger.error("Error desencriptando credenciales", error);
-    // En caso de error, retornar null en lugar de lanzar excepción
-    // para que la app pueda continuar funcionando
+  } catch {
+    // Credenciales cifradas con otra ENCRYPTION_KEY o formato antiguo: se devuelve null sin loguear
     return null;
   }
 }

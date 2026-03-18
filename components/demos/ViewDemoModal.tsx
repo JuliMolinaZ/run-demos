@@ -92,7 +92,7 @@ export function ViewDemoModal({ demo, onClose }: ViewDemoModalProps) {
   const getShareLink = () => {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     const userId = session?.user?.id;
-    const shareUrl = `${baseUrl}/demo/${demo.id}/public${userId ? `?sharedBy=${userId}` : ""}`;
+    const shareUrl = `${baseUrl}/demos/${demo.id}/public${userId ? `?sharedBy=${userId}` : ""}`;
     return shareUrl;
   };
 

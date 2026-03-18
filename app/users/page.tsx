@@ -64,6 +64,7 @@ export default function UsersPage() {
   const [deleting, setDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const roleConfig = {
     admin: {
@@ -84,21 +85,33 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
+    setFetchError(null);
     if (session && canManageUsers(session)) {
       fetchUsers();
       fetchDemos();
+    } else if (session && !canManageUsers(session)) {
+      setLoading(false);
+      setFetchError("No tienes permiso para gestionar usuarios.");
+    } else if (session === null) {
+      setLoading(false);
     }
   }, [session]);
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("/api/users");
+      setFetchError(null);
+      const res = await fetch("/api/users", { credentials: "include" });
       const data = await res.json();
-      // Asegurar que data sea un array
+      if (!res.ok) {
+        setUsers([]);
+        setFetchError(typeof data?.error === "string" ? data.error : "Error al cargar usuarios");
+        return;
+      }
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching users:", error);
-      setUsers([]); // En caso de error, establecer como array vacío
+      setUsers([]);
+      setFetchError("Error de conexión al cargar usuarios");
     } finally {
       setLoading(false);
     }
@@ -302,6 +315,24 @@ export default function UsersPage() {
         </div>
       </div>
 
+      {/* Error al cargar */}
+      {fetchError && (
+        <Card variant="glassPremium" padding="md" className="mb-4 border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{fetchError}</p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-300/80 mt-0.5">
+                Si eres administrador, cierra sesión y vuelve a entrar para actualizar permisos.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchUsers(); }}>
+              Reintentar
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {/* Table */}
       {loading ? (
         <Card variant="glassPremium" padding="lg" className="text-center">
@@ -310,20 +341,30 @@ export default function UsersPage() {
       ) : displayedUsers.length === 0 ? (
         <EmptyState
           icon={Users}
-          title={searchTerm ? t("users.empty.titleSearch") : t("users.empty.title")}
+          title={
+            fetchError
+              ? "Error al cargar usuarios"
+              : searchTerm
+                ? t("users.empty.titleSearch")
+                : t("users.empty.title")
+          }
           description={
-            searchTerm
-              ? t("users.empty.descriptionSearch")
-              : t("users.empty.description")
+            fetchError
+              ? fetchError
+              : searchTerm
+                ? t("users.empty.descriptionSearch")
+                : t("users.empty.description")
           }
           action={
-            !searchTerm
+            !searchTerm && !fetchError
               ? {
                   label: t("users.empty.createUser"),
                   onClick: () => setShowCreateModal(true),
                   icon: <UserPlus className="w-4 h-4" />,
                 }
-              : undefined
+              : fetchError
+                ? { label: "Reintentar", onClick: () => { setLoading(true); fetchUsers(); }, icon: <UserPlus className="w-4 h-4" /> }
+                : undefined
           }
         />
       ) : (

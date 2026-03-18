@@ -308,6 +308,12 @@ export const translations = {
   "demoView.accessDemo": { es: "Acceder al Demo", en: "Access Demo" },
   "demoView.nameAndEmailRequired": { es: "Nombre y email son requeridos", en: "Name and email are required" },
   "demoView.validEmailRequired": { es: "Por favor ingresa un email válido", en: "Please enter a valid email" },
+  "demoView.scrollLeft": { es: "Ir a la izquierda", en: "Go left" },
+  "demoView.scrollRight": { es: "Ir a la derecha", en: "Go right" },
+  "demoView.scrollHint": { es: "Izquierda ↔ Derecha", en: "Left ↔ Right" },
+  "demoView.scrollHintSub": { es: "Navegar horizontalmente (no arriba/abajo)", en: "Horizontal navigation (not up/down)" },
+  "demoView.scrollNavUse": { es: "Flechas o barra horizontal para ver más columnas de la tabla", en: "Arrows or horizontal bar to see more table columns" },
+  "demoView.scrollNavZoom": { es: "Reduce el zoom del navegador para ver más datos y usar las flechas", en: "Reduce browser zoom to see more data and use the arrows" },
 
   // Messages
   "message.createSuccess": { es: "Creado exitosamente", en: "Created successfully" },

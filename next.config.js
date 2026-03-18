@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      // Compatibilidad: links compartidos antiguos /demo/:id/public → /demos/:id/public
+      { source: "/demo/:id/public", destination: "/demos/:id/public", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

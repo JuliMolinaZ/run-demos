@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { logger } from "@/lib/utils/logger-client";
 import {
   X,
@@ -19,7 +19,9 @@ import {
   Lock,
   FileText,
   Package,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles,
+  Box
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
@@ -27,7 +29,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CldImageWrapper } from "@/components/ui/CldImageWrapper";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { wrapHTMLContent } from "@/lib/utils/html-wrapper";
 
 interface Demo {
   id: number;
@@ -65,6 +66,22 @@ export default function DemoViewPage() {
   const [isMobile, setIsMobile] = useState(false);
   const isBuyer = session?.user?.role === "buyer";
   const demoContainerRef = useRef<HTMLDivElement>(null);
+  /** Alternar entre ver la demo, TITAN IA, Comunicaciones o Modelo 3D */
+  const [iframeSource, setIframeSource] = useState<"demo" | "titan" | "comunicaciones" | "modelo3d">("demo");
+
+  /** Demo Apoloware/DISAL WMS: URLs desde env (producción) o localhost por defecto */
+  const APOLOWARE_IA_URL = process.env.NEXT_PUBLIC_TITAN_IA_URL || "http://localhost:5173/";
+  const COMUNICACIONES_URL = process.env.NEXT_PUBLIC_COMUNICACIONES_URL || "http://localhost:3721/";
+  const MODELO_3D_URL = process.env.NEXT_PUBLIC_MODELO_3D_URL || "http://localhost:8081/";
+  const name = demo?.product?.name?.toLowerCase() ?? "";
+  const title = demo?.title?.toLowerCase() ?? "";
+  const isApolowareWms =
+    name.includes("apoloware") ||
+    title.includes("apoloware") ||
+    name.includes("aploware") ||
+    title.includes("aploware") ||
+    title.includes("wms") ||
+    (name.includes("disal") && (title.includes("wms") || title.includes("apolo")));
 
   // Detectar si es móvil
   useEffect(() => {
@@ -85,6 +102,10 @@ export default function DemoViewPage() {
     if (demoId) {
       fetchDemo();
     }
+  }, [demoId]);
+
+  useEffect(() => {
+    setIframeSource("demo");
   }, [demoId]);
 
   const fetchDemo = async () => {
@@ -130,21 +151,22 @@ export default function DemoViewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-charcoal-950 flex overflow-hidden">
+      <div className="min-h-screen bg-gray-50/80 dark:bg-charcoal-950 flex overflow-hidden">
         {/* Skeleton Sidebar */}
-        <div className="w-[360px] bg-white dark:bg-charcoal-900 border-r border-gray-200 dark:border-charcoal-700 p-6 space-y-6">
-          <div className="space-y-4">
-            <div className="h-8 bg-gray-200 dark:bg-charcoal-800 rounded animate-pulse" />
-            <div className="h-4 bg-gray-200 dark:bg-charcoal-800 rounded animate-pulse w-3/4" />
+        <div className="w-[360px] bg-white dark:bg-charcoal-900/95 border-r border-gray-200/80 dark:border-charcoal-700/80 shadow-sm p-6 space-y-5">
+          <div className="p-5 border-b border-gray-100 dark:border-charcoal-700/60 space-y-4">
+            <div className="h-10 bg-gray-200/80 dark:bg-charcoal-800 rounded-xl animate-pulse w-24" />
+            <div className="h-6 bg-gray-200/80 dark:bg-charcoal-800 rounded animate-pulse w-3/4" />
+            <div className="h-4 bg-gray-200/60 dark:bg-charcoal-800/80 rounded animate-pulse w-1/2" />
           </div>
           <div className="space-y-4">
-            <div className="h-6 bg-gray-200 dark:bg-charcoal-800 rounded animate-pulse w-1/2" />
-            <div className="h-20 bg-gray-200 dark:bg-charcoal-800 rounded animate-pulse" />
+            <div className="h-24 bg-gray-200/60 dark:bg-charcoal-800/80 rounded-2xl animate-pulse" />
+            <div className="h-20 bg-gray-200/60 dark:bg-charcoal-800/80 rounded-2xl animate-pulse" />
           </div>
         </div>
         {/* Skeleton Content */}
-        <div className="flex-1 bg-gray-50 dark:bg-charcoal-950 p-6">
-          <div className="h-full bg-white dark:bg-charcoal-900 rounded-xl animate-pulse" />
+        <div className="flex-1 demo-viewer-bg p-6">
+          <div className="h-full max-w-4xl mx-auto bg-white dark:bg-charcoal-900 rounded-2xl animate-pulse shadow-demo border border-gray-200/90 dark:border-charcoal-700/80" />
         </div>
       </div>
     );
@@ -166,11 +188,13 @@ export default function DemoViewPage() {
     <>
       {/* Credenciales */}
       {demo.requiresCredentials && demo.credentialsJson && typeof demo.credentialsJson === "object" && (demo.credentialsJson.username || demo.credentialsJson.password) && (
-        <Card variant="glassPremium" padding="md" className="border-gray-200 dark:border-charcoal-700">
+        <Card variant="glassPremium" padding="md" className="border border-gray-200/90 dark:border-charcoal-700/80 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-corporate-500 dark:text-corporate-400" />
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-corporate-500/10 dark:bg-corporate-400/10">
+                <Lock className="w-4 h-4 text-corporate-600 dark:text-corporate-400" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 tracking-tight">
                 {t("demoView.credentials")}
               </h3>
             </div>
@@ -179,8 +203,9 @@ export default function DemoViewPage() {
                 const text = `${t("demoView.username")}: ${demo.credentialsJson?.username}\n${t("common.password")}: ${demo.credentialsJson?.password}`;
                 copyCredential(text);
               }}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
               title={t("demoView.copyCredentials")}
+              aria-label={t("demoView.copyCredentials")}
             >
               {copied ? (
                 <Check className="w-4 h-4 text-success" />
@@ -191,16 +216,16 @@ export default function DemoViewPage() {
           </div>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-600 dark:text-slate-400 block mb-1.5">
+              <label className="text-xs font-medium text-gray-500 dark:text-slate-500 block mb-1.5 uppercase tracking-wider">
                 {t("demoView.username")}
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 bg-gray-50 dark:bg-charcoal-800 rounded-lg text-sm text-gray-900 dark:text-slate-100 font-mono border border-gray-200 dark:border-charcoal-700">
+                <code className="flex-1 px-3 py-2.5 bg-gray-50 dark:bg-charcoal-800/80 rounded-xl text-sm text-gray-900 dark:text-slate-100 font-mono border border-gray-200/80 dark:border-charcoal-700/80">
                   {demo.credentialsJson.username}
                 </code>
                 <button
                   onClick={() => copyCredential(demo.credentialsJson!.username || '')}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
                   title={t("demoView.copyUser")}
                   aria-label={t("demoView.copyUser")}
                 >
@@ -209,16 +234,16 @@ export default function DemoViewPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 dark:text-slate-400 block mb-1.5">
+              <label className="text-xs font-medium text-gray-500 dark:text-slate-500 block mb-1.5 uppercase tracking-wider">
                 {t("common.password")}
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 bg-gray-50 dark:bg-charcoal-800 rounded-lg text-sm text-gray-900 dark:text-slate-100 font-mono border border-gray-200 dark:border-charcoal-700">
+                <code className="flex-1 px-3 py-2.5 bg-gray-50 dark:bg-charcoal-800/80 rounded-xl text-sm text-gray-900 dark:text-slate-100 font-mono border border-gray-200/80 dark:border-charcoal-700/80">
                   {demo.credentialsJson.password}
                 </code>
                 <button
                   onClick={() => copyCredential(demo.credentialsJson!.password || '')}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
                   title={t("demoView.copyPassword")}
                   aria-label={t("demoView.copyPassword")}
                 >
@@ -232,10 +257,12 @@ export default function DemoViewPage() {
 
       {/* Instrucciones */}
       {((language === "es" && demo.instructionsEs) || (language === "en" && demo.instructionsEn) || demo.instructions) && (
-        <Card variant="glassPremium" padding="md" className="border-gray-200 dark:border-charcoal-700">
-          <div className="flex items-center gap-2 mb-3">
-            <FileText className="w-4 h-4 text-corporate-500 dark:text-corporate-400" />
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+        <Card variant="glassPremium" padding="md" className="border border-gray-200/90 dark:border-charcoal-700/80 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-corporate-500/10 dark:bg-corporate-400/10">
+              <FileText className="w-4 h-4 text-corporate-600 dark:text-corporate-400" />
+            </div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 tracking-tight">
               {t("demoView.instructions")}
             </h3>
           </div>
@@ -248,16 +275,18 @@ export default function DemoViewPage() {
       )}
 
       {/* Información del Producto */}
-      <Card variant="glassPremium" padding="md" className="border-gray-200 dark:border-charcoal-700">
-        <div className="flex items-center gap-2 mb-3">
-          <Package className="w-4 h-4 text-corporate-500 dark:text-corporate-400" />
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+      <Card variant="glassPremium" padding="md" className="border border-gray-200/90 dark:border-charcoal-700/80 shadow-sm">
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-corporate-500/10 dark:bg-corporate-400/10">
+            <Package className="w-4 h-4 text-corporate-600 dark:text-corporate-400" />
+          </div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 tracking-tight">
             {t("demoView.product")}
           </h3>
         </div>
         <div className="flex items-center gap-3">
           {demo.product.logo && (
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-charcoal-700">
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-gray-200/80 dark:border-charcoal-700/80 shadow-sm">
               <CldImageWrapper
                 src={demo.product.logo}
                 alt={demo.product.name}
@@ -274,13 +303,13 @@ export default function DemoViewPage() {
       </Card>
 
       {/* Botón de Feedback */}
-      <div className="pt-2">
+      <div className="pt-1">
         <Button
           variant="primary"
           size="md"
           onClick={() => setShowFeedbackModal(true)}
           leftIcon={<MessageSquare className="w-4 h-4" />}
-          className="w-full"
+          className="w-full rounded-xl font-medium shadow-sm"
         >
           {t("demoView.completeSurvey")}
         </Button>
@@ -289,7 +318,7 @@ export default function DemoViewPage() {
   );
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-charcoal-950 ${isMobile ? "flex flex-col" : "flex overflow-hidden"}`}>
+    <div className={`bg-gray-50/80 dark:bg-charcoal-950 -mt-20 sm:-mt-24 ${isMobile ? "min-h-[100vh] flex flex-col" : "h-[100vh] flex overflow-hidden"}`}>
       {/* Desktop: Sidebar lateral */}
       {!isMobile && (
         <motion.div
@@ -299,24 +328,24 @@ export default function DemoViewPage() {
             opacity: sidebarOpen ? 1 : 0,
           }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="bg-white dark:bg-charcoal-900 border-r border-gray-200 dark:border-charcoal-700 flex flex-col fixed left-0 top-0 bottom-0 z-30 overflow-hidden"
+          className="bg-white dark:bg-charcoal-900/95 border-r border-gray-200/80 dark:border-charcoal-700/80 flex flex-col fixed left-0 top-0 bottom-0 z-30 overflow-hidden shadow-sm"
         >
           <div className="w-full h-full flex flex-col overflow-hidden">
             {/* Header del Sidebar */}
-            <div className="p-6 border-b border-gray-200 dark:border-charcoal-700 flex-shrink-0">
-              <div className="flex items-center justify-between mb-4">
+            <div className="p-6 pb-5 border-b border-gray-100 dark:border-charcoal-700/60 flex-shrink-0 bg-gray-50/50 dark:bg-charcoal-900/50">
+              <div className="flex items-center justify-between mb-5">
                 <button
                   onClick={() => router.push("/demos")}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-charcoal-800 hover:bg-gray-200 dark:hover:bg-charcoal-700 transition-colors text-gray-700 dark:text-slate-300 text-sm font-medium group"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white dark:bg-charcoal-800 border border-gray-200 dark:border-charcoal-700 hover:border-gray-300 dark:hover:border-charcoal-600 hover:shadow-sm transition-all text-gray-700 dark:text-slate-300 text-sm font-medium group"
                   title={t("demoView.returnToDemos")}
                   aria-label={t("demoView.returnToDemos")}
                 >
-                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform text-gray-500 dark:text-slate-400" />
                   {t("common.back")}
                 </button>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400"
+                  className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
                   title={t("demoView.hideSidebar")}
                   aria-label={t("demoView.hideSidebar")}
                 >
@@ -324,8 +353,8 @@ export default function DemoViewPage() {
                 </button>
               </div>
               
-              <div className="space-y-1">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+              <div className="space-y-1.5">
+                <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-slate-100">
                   {demo.title}
                 </h1>
                 {demo.subtitle && (
@@ -337,45 +366,65 @@ export default function DemoViewPage() {
             </div>
 
             {/* Contenido del Sidebar - Scrollable */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
               <InstructionsContent />
             </div>
           </div>
         </motion.div>
       )}
 
-      {/* Desktop: Toggle Sidebar Button */}
-      {!isMobile && (
-        <AnimatePresence>
-          {!sidebarOpen && (
-            <motion.button
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              onClick={() => setSidebarOpen(true)}
-              className="fixed left-4 top-4 z-40 p-3 bg-white dark:bg-charcoal-900 rounded-lg border border-gray-300 dark:border-charcoal-700 hover:bg-gray-50 dark:hover:bg-charcoal-800 transition-all shadow-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-              title={t("demoView.showInstructions")}
-              aria-label={t("demoView.showInstructions")}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-      )}
-
       {/* Mobile: Instrucciones arriba - PRIMERO en móvil */}
       {isMobile && (
-        <div className="w-full bg-white dark:bg-charcoal-900 p-4 sm:p-6 space-y-5">
+        <div className="w-full bg-white dark:bg-charcoal-900/95 border-b border-gray-200/80 dark:border-charcoal-700/80 p-4 sm:p-6 space-y-5 shadow-sm">
           {/* Header móvil */}
           <div className="space-y-2">
-            <button
-              onClick={() => router.push("/demos")}
-              className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t("common.back")}
-            </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => router.push("/demos")}
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t("common.back")}
+              </button>
+              {isApolowareWms && (
+                <div className="flex items-center gap-2">
+                  <a
+                    href={APOLOWARE_IA_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                    title="Abrir TITAN IA (localhost:5173)"
+                    aria-label="TITAN IA"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    TITAN IA
+                  </a>
+                  <a
+                    href={COMUNICACIONES_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                    title="Abrir Módulo de comunicaciones (localhost:3721)"
+                    aria-label="Comunicaciones"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Comunicaciones
+                  </a>
+                  <a
+                    href={MODELO_3D_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                    title="Abrir Modelo 3D (localhost:8081)"
+                    aria-label="Modelo 3D"
+                  >
+                    <Box className="w-4 h-4" />
+                    Modelo 3D
+                  </a>
+                </div>
+              )}
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-slate-100">
               {demo.title}
             </h1>
             {demo.subtitle && (
@@ -394,7 +443,7 @@ export default function DemoViewPage() {
               size="lg"
               onClick={scrollToDemo}
               rightIcon={<ChevronDown className="w-5 h-5" />}
-              className="w-full"
+              className="w-full rounded-xl font-medium shadow-sm"
             >
               Ver Demo
             </Button>
@@ -404,121 +453,222 @@ export default function DemoViewPage() {
 
       {/* Contenido Principal */}
       <div
-        className={`${isMobile ? "w-full flex-1 flex flex-col" : "flex-1 flex flex-col transition-all duration-300"}`}
+        className={`${isMobile ? "w-full flex-1 flex flex-col min-h-0" : "flex-1 flex flex-col min-h-0 transition-all duration-300 overflow-hidden"}`}
         style={{ 
           marginLeft: !isMobile && sidebarOpen ? `${sidebarWidth}px` : '0',
         }}
       >
-        {/* Barra de herramientas - Solo en Desktop */}
+        {/* Barra de herramientas compacta: máximo espacio para la demo */}
         {!isMobile && (
-          <div className="bg-white dark:bg-charcoal-900 border-b border-gray-200 dark:border-charcoal-700 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              {/* Toggle Responsive */}
-              {demo.hasResponsive && (
-                <div className="flex items-center gap-1 bg-gray-100 dark:bg-charcoal-800 rounded-lg p-1 border border-gray-200 dark:border-charcoal-700">
-                  <button
-                    onClick={() => setViewMode("desktop")}
-                    className={`px-2 sm:px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium ${
-                      viewMode === "desktop"
-                        ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
-                        : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-                    }`}
-                    aria-pressed={viewMode === "desktop"}
-                    aria-label="Vista de escritorio"
-                  >
-                    <Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{t("demoView.desktop")}</span>
-                  </button>
-                  <button
-                    onClick={() => setViewMode("mobile")}
-                    className={`px-2 sm:px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium ${
-                      viewMode === "mobile"
-                        ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
-                        : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200"
-                    }`}
-                    aria-pressed={viewMode === "mobile"}
-                    aria-label="Vista móvil"
-                  >
-                    <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{t("demoView.mobile")}</span>
-                  </button>
-                </div>
-              )}
+          <div className="bg-white dark:bg-charcoal-900 border-b border-gray-200 dark:border-charcoal-700 flex-shrink-0 h-10">
+            <div className="px-2 h-full flex items-center gap-0">
+              <div className="w-[64px] flex items-center justify-start gap-0.5 flex-shrink-0">
+                {!sidebarOpen && (
+                  <>
+                    <button
+                      onClick={() => router.push("/demos")}
+                      className="p-1.5 rounded-md text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors"
+                      title={t("demoView.returnToDemos")}
+                      aria-label={t("demoView.returnToDemos")}
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setSidebarOpen(true)}
+                      className="p-1.5 rounded-md text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors"
+                      title={t("demoView.showInstructions")}
+                      aria-label={t("demoView.showInstructions")}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
 
-              {/* Link externo si hay URL */}
-              {demoUrl && (
-                <a
-                  href={demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2 sm:px-3 py-1.5 bg-gray-100 dark:bg-charcoal-800 rounded-lg border border-gray-200 dark:border-charcoal-700 hover:bg-gray-200 dark:hover:bg-charcoal-700 transition-colors text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium"
+              <div className="w-px h-5 bg-gray-200 dark:bg-charcoal-600 flex-shrink-0" aria-hidden />
+              <div className="flex-1 min-w-0" />
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {isApolowareWms && (
+                  <div className="inline-flex rounded-md bg-gray-100 dark:bg-charcoal-800 p-0.5 border border-gray-200/80 dark:border-charcoal-600">
+                    <button
+                      type="button"
+                      onClick={() => setIframeSource("demo")}
+                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                        iframeSource === "demo"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title="Ver esta demo"
+                    >
+                      Demo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIframeSource("titan")}
+                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                        iframeSource === "titan"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title="Ver TITAN IA (localhost:5173)"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                      TITAN IA
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIframeSource("comunicaciones")}
+                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                        iframeSource === "comunicaciones"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title="Ver Módulo de comunicaciones (localhost:3721)"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                      Comunicaciones
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIframeSource("modelo3d")}
+                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                        iframeSource === "modelo3d"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title="Ver Modelo 3D (localhost:8081)"
+                    >
+                      <Box className="w-3.5 h-3.5 shrink-0" />
+                      Modelo 3D
+                    </button>
+                  </div>
+                )}
+                {demo.hasResponsive && (
+                  <div className="inline-flex rounded-md bg-gray-100 dark:bg-charcoal-800 p-0.5 border border-gray-200/80 dark:border-charcoal-600">
+                    <button
+                      onClick={() => setViewMode("desktop")}
+                      className={`p-1.5 rounded transition-colors ${
+                        viewMode === "desktop"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title={t("demoView.desktop")}
+                      aria-label={t("demoView.desktop")}
+                      aria-pressed={viewMode === "desktop"}
+                    >
+                      <Monitor className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("mobile")}
+                      className={`p-1.5 rounded transition-colors ${
+                        viewMode === "mobile"
+                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                      }`}
+                      title={t("demoView.mobile")}
+                      aria-label={t("demoView.mobile")}
+                      aria-pressed={viewMode === "mobile"}
+                    >
+                      <Smartphone className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                {demoUrl && (
+                  <a
+                    href={demoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded-md text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors"
+                    title={t("demoView.openNewTabShort")}
+                    aria-label={t("demoView.openNewTabShort")}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+                <button
+                  onClick={() => router.push("/demos")}
+                  className="p-1.5 rounded-md text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors"
+                  title={t("demoView.closeAndReturn")}
+                  aria-label={t("demoView.closeAndReturn")}
                 >
-                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">{t("demoView.openNewTabShort")}</span>
-                </a>
-              )}
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-
-            <button
-              onClick={() => router.push("/demos")}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-charcoal-800 transition-colors text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 flex-shrink-0"
-              title={t("demoView.closeAndReturn")}
-              aria-label={t("demoView.closeAndReturn")}
-            >
-              <X className="w-5 h-5" />
-            </button>
           </div>
         )}
 
-        {/* Contenedor del Demo */}
+        {/* Contenedor del Demo: mínimo margen, casi pantalla completa */}
         <div 
           ref={demoContainerRef}
-          className={`bg-gray-50 dark:bg-charcoal-950 ${isMobile ? "w-full flex-1 min-h-screen" : "flex-1 overflow-auto p-2 sm:p-4 lg:p-6"}`}
+          className={`demo-viewer-bg flex flex-col ${isMobile ? "w-full flex-1 min-h-0" : "flex-1 min-h-0 overflow-hidden p-1 sm:p-2"}`}
         >
-          <motion.div
-            key={viewMode}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
-            className={`mx-auto bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300 ${
-              isMobile 
-                ? "w-full h-screen rounded-none shadow-none border-0" 
-                : `rounded-xl shadow-2xl border border-gray-200 dark:border-charcoal-800 ${viewMode === "mobile" && !isMobile ? "max-w-sm" : "w-full"}`
-            }`}
-            style={{
-              height: isMobile 
-                ? "100vh" 
-                : viewMode === "mobile" && !isMobile
-                  ? "800px" 
-                  : "calc(100vh - 140px)",
-            }}
-          >
-            {demo.htmlContent ? (
-              <iframe
-                srcDoc={wrapHTMLContent(demo.htmlContent)}
-                className="w-full h-full border-0"
-                title={demo.title}
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
-                style={{
-                  display: "block",
-                }}
-              />
-            ) : demoUrl ? (
-              <iframe
-                src={demoUrl}
-                className="w-full h-full border-0"
-                title={demo.title}
-                allow="fullscreen"
-                style={{
-                  display: "block",
-                }}
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500 dark:text-slate-400 p-4">
-                <p className="text-sm sm:text-base">{t("demoView.noContent")}</p>
-              </div>
-            )}
-          </motion.div>
+          <div className="flex-1 min-h-0 overflow-auto">
+            <motion.div
+              key={`${viewMode}-${iframeSource}`}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              className={`mx-auto bg-white dark:bg-charcoal-900 overflow-hidden transition-all duration-300 ${
+                isMobile 
+                  ? "w-full h-screen rounded-none shadow-none border-0" 
+                  : `rounded-lg shadow-sm border border-gray-200/80 dark:border-charcoal-700/80 ${viewMode === "mobile" && !isMobile ? "max-w-sm" : "w-full"}`
+              }`}
+              style={{
+                height: isMobile
+                  ? "100vh"
+                  : viewMode === "mobile" && !isMobile
+                    ? "800px"
+                    : "calc(100vh - 40px)",
+              } as React.CSSProperties}
+            >
+              {isApolowareWms && iframeSource === "titan" ? (
+                <iframe
+                  src={APOLOWARE_IA_URL}
+                  className="w-full h-full border-0"
+                  title="TITAN IA"
+                  allow="fullscreen"
+                  style={{ display: "block" }}
+                />
+              ) : isApolowareWms && iframeSource === "comunicaciones" ? (
+                <iframe
+                  src={COMUNICACIONES_URL}
+                  className="w-full h-full border-0"
+                  title="Módulo de comunicaciones"
+                  allow="fullscreen"
+                  style={{ display: "block" }}
+                />
+              ) : isApolowareWms && iframeSource === "modelo3d" ? (
+                <iframe
+                  src={MODELO_3D_URL}
+                  className="w-full h-full border-0"
+                  title="Modelo 3D"
+                  allow="fullscreen"
+                  style={{ display: "block" }}
+                />
+              ) : demo.htmlContent ? (
+                <iframe
+                  src={`/api/demos/${demo.id}/render`}
+                  className="w-full h-full border-0"
+                  title={demo.title}
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                  style={{ display: "block" }}
+                />
+              ) : demoUrl ? (
+                <iframe
+                  src={demoUrl}
+                  className="w-full h-full border-0"
+                  title={demo.title}
+                  allow="fullscreen"
+                  style={{ display: "block" }}
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500 dark:text-slate-400 p-4">
+                  <p className="text-sm sm:text-base">{t("demoView.noContent")}</p>
+                </div>
+              )}
+            </motion.div>
+          </div>
         </div>
       </div>
 

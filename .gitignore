@@ -73,10 +73,12 @@ drizzle/
 Thumbs.db
 .DS_Store
 
-# Temporary files
+# Temporary / local files
 *.tmp
 *.temp
 .cache/
+test.html
+.claude/
 
 # Logs
 logs/

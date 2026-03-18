@@ -9,7 +9,6 @@ import {
   Mail,
   Building2,
   MapPin,
-  DollarSign,
   Users,
   Loader2,
   ArrowRight,
@@ -19,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { wrapHTMLContent } from "@/lib/utils/html-wrapper";
+import { logger } from "@/lib/utils/logger-client";
 
 interface Demo {
   id: number;
@@ -58,15 +57,8 @@ export default function PublicDemoPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Si el usuario está autenticado (es buyer), redirigir a la vista normal
   useEffect(() => {
     if (sessionStatus === "authenticated" && session?.user) {
-      // Si es buyer, redirigir a la vista normal de demos
-      if (session.user.role === "buyer") {
-        router.push(`/demos/${demoId}/view`);
-        return;
-      }
-      // Si es otro tipo de usuario autenticado, también redirigir (no necesitan formulario)
       router.push(`/demos/${demoId}/view`);
     }
   }, [sessionStatus, session, demoId, router]);
@@ -92,8 +84,8 @@ export default function PublicDemoPage() {
       if (!res.ok) throw new Error(t("demoView.notFound"));
       const data = await res.json();
       setDemo(data);
-    } catch (error) {
-      console.error("Error fetching demo:", error);
+    } catch (err) {
+      logger.error("Error fetching demo", err);
       setError(t("demoView.notFoundOrNotAvailable"));
     } finally {
       setLoading(false);
@@ -106,14 +98,12 @@ export default function PublicDemoPage() {
     setSubmitting(true);
 
     try {
-      // Validar campos requeridos
       if (!formData.name.trim() || !formData.email.trim()) {
         setError(t("demoView.nameAndEmailRequired"));
         setSubmitting(false);
         return;
       }
 
-      // Validar email
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         setError(t("demoView.validEmailRequired"));
@@ -121,7 +111,6 @@ export default function PublicDemoPage() {
         return;
       }
 
-      // Crear lead
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -144,13 +133,9 @@ export default function PublicDemoPage() {
       const newLead = await res.json();
       setLeadId(newLead.id);
       setLeadCreated(true);
-      
-      // Esperar un momento y luego mostrar el demo
-      setTimeout(() => {
-        setStep("demo");
-      }, 1500);
-    } catch (err: any) {
-      setError(err.message || "Error al procesar el formulario");
+      setTimeout(() => setStep("demo"), 1500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al procesar el formulario");
     } finally {
       setSubmitting(false);
     }
@@ -186,7 +171,6 @@ export default function PublicDemoPage() {
     return null;
   }
 
-  // Mostrar formulario de captura
   if (step === "form") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-charcoal-950 flex items-center justify-center p-6">
@@ -196,7 +180,6 @@ export default function PublicDemoPage() {
           className="w-full max-w-2xl"
         >
           <Card variant="glassPremium" padding="lg">
-            {/* Header */}
             <div className="text-center mb-8">
               {demo.product.logo && (
                 <img
@@ -216,7 +199,6 @@ export default function PublicDemoPage() {
               </p>
             </div>
 
-            {/* Formulario */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-400 text-sm">
@@ -332,8 +314,8 @@ export default function PublicDemoPage() {
                 {submitting
                   ? t("demoView.processing")
                   : leadCreated
-                  ? t("demoView.accessingDemo")
-                  : t("demoView.accessDemo")}
+                    ? t("demoView.accessingDemo")
+                    : t("demoView.accessDemo")}
               </Button>
             </form>
           </Card>
@@ -342,16 +324,14 @@ export default function PublicDemoPage() {
     );
   }
 
-  // Mostrar demo después del formulario
   if (step === "demo") {
     return (
       <div className="min-h-screen bg-charcoal-950">
         <iframe
-          src={demo.htmlContent ? undefined : demo.url}
-          srcDoc={demo.htmlContent ? wrapHTMLContent(demo.htmlContent) : undefined}
+          src={demo.htmlContent ? `/api/demos/${demo.id}/render` : demo.url}
           className="w-full h-screen border-0"
           title={demo.title}
-          sandbox={demo.htmlContent ? "allow-scripts allow-same-origin allow-forms allow-popups allow-modals" : undefined}
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
           allow="fullscreen"
         />
       </div>
@@ -360,4 +340,3 @@ export default function PublicDemoPage() {
 
   return null;
 }
-

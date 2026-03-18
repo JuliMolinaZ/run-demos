@@ -64,11 +64,12 @@ if ssh ${SERVER_USER}@${SERVER_HOST} "[ -d ${SERVER_APP_DIR}/.git ]"; then
     echo -e "${YELLOW}   Actualizando repositorio existente...${NC}"
     ssh ${SERVER_USER}@${SERVER_HOST} << 'EOF'
         cd /opt/demo-hub
-        # Limpiar archivos innecesarios antes de actualizar
+        # Limpiar solo artefactos de build (NUNCA tocar .env ni datos de producción)
         rm -rf .next node_modules *.log .cache .turbo 2>/dev/null || true
         git fetch origin
         git reset --hard origin/main
-        git clean -fd
+        # Excluir .env* para no borrar variables de producción
+        git clean -fd -e .env.production -e '.env.production.*' -e '.env*'
 EOF
 else
     echo -e "${YELLOW}   Clonando repositorio...${NC}"

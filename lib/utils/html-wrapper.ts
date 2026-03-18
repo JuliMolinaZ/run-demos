@@ -33,10 +33,8 @@ export function wrapHTMLContent(htmlFragment: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Demo</title>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Configuración de Tailwind -->
+  <!-- Tailwind CSS CDN con configuración -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',

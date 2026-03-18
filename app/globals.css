@@ -386,6 +386,21 @@ body {
     text-wrap: balance;
   }
 
+  /* Demo viewer area - fondo profesional con patrón sutil */
+  .demo-viewer-bg {
+    background-color: rgb(248 250 252);
+  }
+  .dark .demo-viewer-bg {
+    background-color: hsl(220 13% 9%);
+  }
+  .demo-viewer-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+  .dark .demo-viewer-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  }
+
   /* --- Glass Effects Corporativos (Adaptables) --- */
   .glass-premium {
     background: rgba(23, 25, 30, 0.96);
@@ -587,4 +602,36 @@ body {
 [data-ut-element="button"]:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
+}
+
+/* Demo viewer: scrollbar horizontal siempre visible para tablas (Innovantario, etc.) */
+.scrollbar-visible {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+.scrollbar-visible::-webkit-scrollbar {
+  height: 12px;
+}
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+}
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+}
+.scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+.dark .scrollbar-visible {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.dark .scrollbar-visible::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+.dark .scrollbar-visible::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+.dark .scrollbar-visible::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }

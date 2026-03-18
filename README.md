@@ -91,6 +91,50 @@ Enterprise Sales Enablement & Demo Management Platform built with Next.js 15, Ty
 
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## 🐳 Docker (desarrollo local)
+
+El proyecto está dockerizado para **PostgreSQL** en local y para **app + PostgreSQL** en producción.
+
+### Solo base de datos en local
+
+1. **Levantar PostgreSQL** (credenciales fijas en `docker-compose.yml`):
+   ```bash
+   docker compose up -d
+   ```
+   Usuario: `demo_hub_user`, contraseña: `demo_hub_password`, base: `demo_hub`, puerto: `5432`.
+
+2. **Configurar `.env`** con la misma URL:
+   ```env
+   DATABASE_URL="postgresql://demo_hub_user:demo_hub_password@localhost:5432/demo_hub"
+   ```
+
+3. **Comprobar conexión a la base de datos**:
+   ```bash
+   npm run db:check
+   ```
+   Debe mostrar `✅ Base de datos: conexión OK`.
+
+4. **Aplicar migraciones**:
+   ```bash
+   npm run db:migrate
+   ```
+
+5. **Crear usuario y arrancar la app**:
+   ```bash
+   npm run create-user "Tu Nombre" tu@email.com "tu-password" admin
+   npm run dev
+   ```
+
+### Validar que todo funcione
+
+- **Sin levantar la app:** `npm run db:check`
+- **Con la app en marcha:** `curl http://localhost:3000/api/health` → debe devolver `"database": "connected"`.
+
+### Alternativas Docker
+
+- **Desarrollo (Postgres con variables de entorno):** `npm run docker:dev` usa `docker-compose.dev.yml` (mismas credenciales por defecto).
+- **Producción (app + Postgres):** `docker-compose -f docker-compose.prod.yml up -d`; requiere `.env` con `POSTGRES_PASSWORD`, `NEXTAUTH_*`, etc. Ver [docs/deployment.md](docs/deployment.md).
+
 ## 📚 Available Scripts
 
 - `npm run dev` - Start development server
@@ -99,8 +143,11 @@ Enterprise Sales Enablement & Demo Management Platform built with Next.js 15, Ty
 - `npm run lint` - Run ESLint
 - `npm run db:generate` - Generate Drizzle migrations
 - `npm run db:migrate` - Run database migrations
+- `npm run db:check` - Validar conexión a PostgreSQL (usa `.env`)
 - `npm run db:studio` - Open Drizzle Studio
 - `npm run create-user` - Create a new user
+- `npm run docker:dev` - Levantar solo Postgres con docker-compose.dev.yml
+- `npm run docker:dev:down` - Bajar contenedores de desarrollo
 
 ## 🏗 Project Structure
 
@@ -108,22 +155,34 @@ Enterprise Sales Enablement & Demo Management Platform built with Next.js 15, Ty
 demo-hub/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
-│   ├── demos/             # Demo pages
-│   ├── leads/             # Leads pages
-│   └── users/             # User management
+│   ├── demos/             # Demos: list, [id]/view, [id]/public (compartidos)
+│   ├── leads/             # Leads
+│   ├── login/             # Auth
+│   ├── settings/          # User settings
+│   ├── users/             # User management (admin)
+│   └── analytics/         # Dashboard
 ├── components/             # React components
-│   ├── demos/             # Demo-related components
-│   ├── settings/          # Settings components
-│   └── ui/                # Reusable UI components
-├── lib/                   # Utilities and configurations
-│   ├── auth/              # Authentication config
-│   ├── db/                # Database schema and client
+│   ├── demos/             # Demo modals and UI
+│   ├── products/          # Product modals
+│   ├── settings/          # Settings & profile
+│   ├── feedback/          # Feedback modal
+│   └── ui/                # Reusable UI (buttons, cards, inputs, etc.)
+├── lib/                   # Shared logic
+│   ├── auth/              # NextAuth config, permissions
+│   ├── db/                # Drizzle schema & client
 │   ├── hooks/             # Custom React hooks
-│   ├── utils/             # Utility functions
+│   ├── i18n/              # Translations (es/en)
+│   ├── utils/             # Helpers, logger, sanitize, etc.
 │   └── validations/       # Zod schemas
+├── docs/                  # Documentación (despliegue, etc.)
 ├── public/                # Static assets
-└── scripts/               # Utility scripts
+└── scripts/               # Deploy, migrations, create-user
 ```
+
+## 📖 Documentación adicional
+
+- **[docs/deployment.md](docs/deployment.md)** — Despliegue con Docker, servidor remoto y troubleshooting.
+- **[SECURITY.md](SECURITY.md)** — Política de seguridad, variables de entorno y pre-commit.
 
 ## 🔐 Security Features
 
@@ -152,22 +211,14 @@ demo-hub/
 
 ## 🚢 Production Deployment
 
-1. **Build the application**
-   ```bash
-   npm run build
-   ```
+Ver **[docs/deployment.md](docs/deployment.md)** para la guía completa (Docker, script remoto, variables, troubleshooting).
 
-2. **Set environment variables** in your hosting platform
+Resumen rápido:
 
-3. **Run database migrations**
-   ```bash
-   npm run db:migrate
-   ```
-
-4. **Start the production server**
-   ```bash
-   npm start
-   ```
+1. **Build:** `npm run build`
+2. **Variables de entorno** en tu plataforma (ver `.env.production.example`)
+3. **Migraciones:** `npm run db:migrate`
+4. **Arranque:** `npm start` o usar `./scripts/deploy-remote.sh` para despliegue remoto
 
 ### Recommended Hosting Platforms
 

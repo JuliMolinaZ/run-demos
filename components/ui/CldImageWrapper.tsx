@@ -46,6 +46,18 @@ function optimizeCloudinaryUrl(url: string): string {
  * Componente wrapper que optimiza imágenes de Cloudinary usando transformaciones en la URL
  * Para otras URLs, usa Image normal de Next.js
  */
+function isValidUrl(str: string): boolean {
+  if (!str || typeof str !== "string" || str.trim() === "") return false;
+  // Ruta relativa (p. ej. /uploads/xxx)
+  if (str.startsWith("/")) return true;
+  try {
+    const u = new URL(str);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function CldImageWrapper({
   src,
   alt,
@@ -54,6 +66,16 @@ export function CldImageWrapper({
   className,
   fill,
 }: CldImageWrapperProps) {
+  if (!isValidUrl(src)) {
+    return (
+      <div
+        className={className}
+        style={fill ? { width: "100%", height: "100%", position: "absolute", inset: 0 } : { width: width || 500, height: height || 500 }}
+        aria-label={alt}
+      />
+    );
+  }
+
   // Si la URL es de Cloudinary, optimizarla
   const isCloudinary = src.includes("cloudinary.com") || src.includes("res.cloudinary.com");
   const optimizedSrc = isCloudinary ? optimizeCloudinaryUrl(src) : src;

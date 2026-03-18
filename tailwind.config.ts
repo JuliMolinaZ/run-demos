@@ -104,6 +104,7 @@ const config: Config = {
         'lg': 'var(--shadow-lg)',
         'xl': 'var(--shadow-xl)',
         '2xl': 'var(--shadow-2xl)',
+        'demo': '0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 10px 20px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03)',
         'glow-corporate': 'var(--glow-corporate)',
         'glow-platinum': 'var(--glow-platinum)',
         'glow-subtle': 'var(--glow-subtle)',

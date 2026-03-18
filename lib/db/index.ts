@@ -1,3 +1,9 @@
+import { config } from "dotenv";
+import { resolve } from "path";
+
+// Cargar .env en cuanto se importa este módulo (evita que auth use otra URL en dev)
+config({ path: resolve(process.cwd(), ".env") });
+
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
@@ -25,6 +31,12 @@ const getPostgresClient = () => {
   if (process.env.NODE_ENV === "development") {
     // En desarrollo, reutilizar el cliente global para evitar múltiples conexiones
     if (!global.__postgresClient) {
+      try {
+        const u = new URL(connectionString.replace(/^postgresql:\/\//, "https://"));
+        console.log("[DB] Conectando a PostgreSQL:", u.hostname, "puerto", u.port || "5432");
+      } catch {
+        /* ignore */
+      }
       global.__postgresClient = postgres(connectionString, {
         max: 5, // Reducir conexiones en desarrollo
         idle_timeout: 10, // Cerrar conexiones inactivas más rápido

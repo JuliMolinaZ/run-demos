@@ -100,13 +100,11 @@ export async function GET(req: NextRequest) {
       .innerJoin(products, eq(demos.productId, products.id))
       .orderBy(desc(demos.createdAt));
 
-    // Desencriptar credenciales en cada demo
+    // Desencriptar credenciales en cada demo (si falla, dejar null para no exponer el blob cifrado)
     const demosWithDecryptedCredentials = allDemos.map((demo) => {
       if (demo.credentialsJson && typeof demo.credentialsJson === "string") {
         const decrypted = decryptCredentials(demo.credentialsJson);
-        if (decrypted) {
-          return { ...demo, credentialsJson: decrypted };
-        }
+        return { ...demo, credentialsJson: decrypted ?? null };
       }
       return demo;
     });

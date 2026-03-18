@@ -15,6 +15,13 @@ export async function GET() {
     const session = await auth();
 
     if (!session || !canManageUsers(session)) {
+      if (process.env.NODE_ENV === "development") {
+        logger.debug("GET /api/users: no autorizado", {
+          hasSession: !!session,
+          role: session?.user?.role,
+          canManage: session ? canManageUsers(session) : false,
+        });
+      }
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
