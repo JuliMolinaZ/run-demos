@@ -68,11 +68,20 @@ export default function DemoViewPage() {
   const demoContainerRef = useRef<HTMLDivElement>(null);
   /** Alternar entre ver la demo, TITAN IA, Comunicaciones o Modelo 3D */
   const [iframeSource, setIframeSource] = useState<"demo" | "titan" | "comunicaciones" | "modelo3d">("demo");
+  /** Solo después del mount usamos localhost como fallback (evita bloqueo: página pública → red local). */
+  const [mounted, setMounted] = useState(false);
+  const isLocalHost =
+    mounted &&
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
-  /** Demo Apoloware/DISAL WMS: URLs desde env (producción) o localhost por defecto */
-  const APOLOWARE_IA_URL = process.env.NEXT_PUBLIC_TITAN_IA_URL || "http://localhost:5173/";
-  const COMUNICACIONES_URL = process.env.NEXT_PUBLIC_COMUNICACIONES_URL || "http://localhost:3721/";
-  const MODELO_3D_URL = process.env.NEXT_PUBLIC_MODELO_3D_URL || "http://localhost:8081/";
+  /** Demo Apoloware/DISAL WMS: URLs desde env. En producción NUNCA usar localhost. */
+  const APOLOWARE_IA_URL =
+    process.env.NEXT_PUBLIC_TITAN_IA_URL || (isLocalHost ? "http://localhost:5173/" : "") || "";
+  const COMUNICACIONES_URL =
+    process.env.NEXT_PUBLIC_COMUNICACIONES_URL || (isLocalHost ? "http://localhost:3721/" : "") || "";
+  const MODELO_3D_URL =
+    process.env.NEXT_PUBLIC_MODELO_3D_URL || (isLocalHost ? "http://localhost:8081/" : "") || "";
   const name = demo?.product?.name?.toLowerCase() ?? "";
   const title = demo?.title?.toLowerCase() ?? "";
   const isApolowareWms =
@@ -107,6 +116,10 @@ export default function DemoViewPage() {
   useEffect(() => {
     setIframeSource("demo");
   }, [demoId]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchDemo = async () => {
     try {
@@ -386,41 +399,47 @@ export default function DemoViewPage() {
                 <ArrowLeft className="w-4 h-4" />
                 {t("common.back")}
               </button>
-              {isApolowareWms && (
+              {isApolowareWms && (APOLOWARE_IA_URL || COMUNICACIONES_URL || MODELO_3D_URL) && (
                 <div className="flex items-center gap-2">
-                  <a
-                    href={APOLOWARE_IA_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
-                    title="Abrir TITAN IA (localhost:5173)"
-                    aria-label="TITAN IA"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    TITAN IA
-                  </a>
-                  <a
-                    href={COMUNICACIONES_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
-                    title="Abrir Módulo de comunicaciones (localhost:3721)"
-                    aria-label="Comunicaciones"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    Comunicaciones
-                  </a>
-                  <a
-                    href={MODELO_3D_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
-                    title="Abrir Modelo 3D (localhost:8081)"
-                    aria-label="Modelo 3D"
-                  >
-                    <Box className="w-4 h-4" />
-                    Modelo 3D
-                  </a>
+                  {APOLOWARE_IA_URL && (
+                    <a
+                      href={APOLOWARE_IA_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                      title="Abrir TITAN IA"
+                      aria-label="TITAN IA"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      TITAN IA
+                    </a>
+                  )}
+                  {COMUNICACIONES_URL && (
+                    <a
+                      href={COMUNICACIONES_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                      title="Abrir Módulo de comunicaciones"
+                      aria-label="Comunicaciones"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Comunicaciones
+                    </a>
+                  )}
+                  {MODELO_3D_URL && (
+                    <a
+                      href={MODELO_3D_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-corporate-500/10 dark:bg-corporate-400/10 text-corporate-600 dark:text-corporate-400 text-sm font-semibold hover:bg-corporate-500/20 dark:hover:bg-corporate-400/20 transition-colors"
+                      title="Abrir Modelo 3D"
+                      aria-label="Modelo 3D"
+                    >
+                      <Box className="w-4 h-4" />
+                      Modelo 3D
+                    </a>
+                  )}
                 </div>
               )}
             </div>
@@ -488,7 +507,7 @@ export default function DemoViewPage() {
               <div className="w-px h-5 bg-gray-200 dark:bg-charcoal-600 flex-shrink-0" aria-hidden />
               <div className="flex-1 min-w-0" />
               <div className="flex items-center gap-1 flex-shrink-0">
-                {isApolowareWms && (
+                {isApolowareWms && (APOLOWARE_IA_URL || COMUNICACIONES_URL || MODELO_3D_URL) && (
                   <div className="inline-flex rounded-md bg-gray-100 dark:bg-charcoal-800 p-0.5 border border-gray-200/80 dark:border-charcoal-600">
                     <button
                       type="button"
@@ -502,45 +521,51 @@ export default function DemoViewPage() {
                     >
                       Demo
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setIframeSource("titan")}
-                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                        iframeSource === "titan"
-                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
-                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
-                      }`}
-                      title="Ver TITAN IA (localhost:5173)"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                      TITAN IA
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIframeSource("comunicaciones")}
-                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                        iframeSource === "comunicaciones"
-                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
-                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
-                      }`}
-                      title="Ver Módulo de comunicaciones (localhost:3721)"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-                      Comunicaciones
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIframeSource("modelo3d")}
-                      className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                        iframeSource === "modelo3d"
-                          ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
-                          : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
-                      }`}
-                      title="Ver Modelo 3D (localhost:8081)"
-                    >
-                      <Box className="w-3.5 h-3.5 shrink-0" />
-                      Modelo 3D
-                    </button>
+                    {APOLOWARE_IA_URL && (
+                      <button
+                        type="button"
+                        onClick={() => setIframeSource("titan")}
+                        className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                          iframeSource === "titan"
+                            ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                            : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                        }`}
+                        title="Ver TITAN IA"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        TITAN IA
+                      </button>
+                    )}
+                    {COMUNICACIONES_URL && (
+                      <button
+                        type="button"
+                        onClick={() => setIframeSource("comunicaciones")}
+                        className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                          iframeSource === "comunicaciones"
+                            ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                            : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                        }`}
+                        title="Ver Módulo de comunicaciones"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                        Comunicaciones
+                      </button>
+                    )}
+                    {MODELO_3D_URL && (
+                      <button
+                        type="button"
+                        onClick={() => setIframeSource("modelo3d")}
+                        className={`min-w-[7.5rem] px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                          iframeSource === "modelo3d"
+                            ? "bg-white dark:bg-charcoal-700 text-corporate-600 dark:text-corporate-400 shadow-sm"
+                            : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200"
+                        }`}
+                        title="Ver Modelo 3D"
+                      >
+                        <Box className="w-3.5 h-3.5 shrink-0" />
+                        Modelo 3D
+                      </button>
+                    )}
                   </div>
                 )}
                 {demo.hasResponsive && (
@@ -622,7 +647,7 @@ export default function DemoViewPage() {
                     : "calc(100vh - 40px)",
               } as React.CSSProperties}
             >
-              {isApolowareWms && iframeSource === "titan" ? (
+              {isApolowareWms && iframeSource === "titan" && APOLOWARE_IA_URL ? (
                 <iframe
                   src={APOLOWARE_IA_URL}
                   className="w-full h-full border-0"
@@ -630,7 +655,7 @@ export default function DemoViewPage() {
                   allow="fullscreen"
                   style={{ display: "block" }}
                 />
-              ) : isApolowareWms && iframeSource === "comunicaciones" ? (
+              ) : isApolowareWms && iframeSource === "comunicaciones" && COMUNICACIONES_URL ? (
                 <iframe
                   src={COMUNICACIONES_URL}
                   className="w-full h-full border-0"
@@ -638,7 +663,7 @@ export default function DemoViewPage() {
                   allow="fullscreen"
                   style={{ display: "block" }}
                 />
-              ) : isApolowareWms && iframeSource === "modelo3d" ? (
+              ) : isApolowareWms && iframeSource === "modelo3d" && MODELO_3D_URL ? (
                 <iframe
                   src={MODELO_3D_URL}
                   className="w-full h-full border-0"

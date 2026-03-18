@@ -32,6 +32,14 @@ ENV NODE_ENV=production
 # DATABASE_URL para el build - usa el nombre del servicio de Docker
 ENV DATABASE_URL="postgresql://demo_hub_user:demo_hub_password@postgres:5432/demo_hub"
 
+# URLs de módulos Apoloware (NEXT_PUBLIC_* se inyectan en build)
+ARG NEXT_PUBLIC_TITAN_IA_URL
+ARG NEXT_PUBLIC_COMUNICACIONES_URL
+ARG NEXT_PUBLIC_MODELO_3D_URL
+ENV NEXT_PUBLIC_TITAN_IA_URL=$NEXT_PUBLIC_TITAN_IA_URL
+ENV NEXT_PUBLIC_COMUNICACIONES_URL=$NEXT_PUBLIC_COMUNICACIONES_URL
+ENV NEXT_PUBLIC_MODELO_3D_URL=$NEXT_PUBLIC_MODELO_3D_URL
+
 # Build optimizado
 RUN npm run build && \
     npm prune --production && \
